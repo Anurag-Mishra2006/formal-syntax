@@ -1,4 +1,4 @@
-baseURL = "https://yourusername.github.io/" # Change this when you have your domain
+baseURL = "https://formal-syntax.pages.dev/posts/" # Change this when you have your domain
 languageCode = "en-us"
 title = "Formal Syntax"
 theme = "PaperMod"
@@ -86,3 +86,4 @@ Currently learning how the modern web actually works.
     [markup.goldmark.renderer]
       unsafe = true # This allows us to use the search scripts and math HTML
 
+# https://yourusername.github.io/about/
