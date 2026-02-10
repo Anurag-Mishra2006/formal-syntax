@@ -1,5 +1,4 @@
 
-```markdown
 # Formal Syntax 
 
 > **"Syntax is the structure; Formal is the rigor."**
@@ -50,6 +49,5 @@ I value correctness over ego. If you find a mistake in a mathematical proof, a l
 
 ## 📄 License
 This project is open-source and available under the [MIT License](LICENSE).
-```
 
----
+
