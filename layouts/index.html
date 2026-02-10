@@ -1,0 +1,63 @@
+{{ define "main" }}
+
+{{/* 1. Show the Intro/Hi message from hugo.toml */}}
+{{ if .Site.Params.homeInfoParams }}
+    {{ partial "home_info.html" . }}
+{{ end }}
+
+<div class="post-content" style="margin-top: 50px;">
+    <h2 style="font-family: 'JetBrains Mono', monospace; border-bottom: 1px solid var(--tertiary); padding-bottom: 10px;">
+        Things I’m Working On
+    </h2>
+</div>
+
+{{/* 2. Logic: Only show posts where 'featured: true' */}}
+{{ $pages := where site.RegularPages "Params.featured" "==" true }}
+
+<div class="post-list">
+    {{ range $pages }}
+    <article class="post-entry" style="margin-bottom: 30px; border-bottom: 1px solid var(--border); padding-bottom: 20px;">
+        <header class="entry-header">
+            <h2 style="margin: 10px 0;">
+                <a href="{{ .Permalink }}" style="box-shadow: none; color: var(--primary); text-decoration: none; font-family: 'JetBrains Mono', monospace;">
+                    {{ .Title }}
+                </a>
+            </h2>
+        </header>
+        <div class="entry-content">
+            <p style="font-size: 0.95rem; color: var(--secondary);">{{ .Summary | plainify | truncate 160 }}</p>
+        </div>
+        <footer class="entry-footer">
+            <span style="font-size: 0.8rem; opacity: 0.8;">{{ .Date.Format "January 2, 2006" }} · {{ .ReadingTime }} min read</span>
+        </footer>
+    </article>
+    {{ end }}
+</div>
+
+{{/* 3. Link to All Posts */}}
+<div style="text-align: center; margin-top: 40px;">
+    <a href="/posts/" class="archive-link" style="display: inline-block; padding: 12px 24px; border: 1px dashed var(--secondary); text-decoration: none; color: var(--primary); font-family: 'JetBrains Mono', monospace; border-radius: 4px; transition: all 0.3s;">
+        View Full Archive →
+    </a>
+</div>
+<style>
+    .archive-link {
+        display: inline-block; 
+        padding: 12px 30px; 
+        border: 1px solid var(--tertiary); 
+        text-decoration: none; 
+        color: var(--primary); 
+        font-family: 'JetBrains Mono', monospace; 
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.2s ease;
+    }
+
+    .archive-link:hover {
+        background: var(--tertiary);
+        color: var(--theme);
+        transform: translateY(-2px);
+    }
+</style>
+{{ end }}

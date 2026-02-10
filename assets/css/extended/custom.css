@@ -1,0 +1,93 @@
+/* Professional Search Styling */
+.search-wrapper {
+    margin: 50px auto;
+    max-width: 700px;
+}
+
+#searchInput {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 15px 25px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 1.2rem;
+    color: var(--primary);
+    transition: all 0.3s ease;
+}
+
+#searchInput:focus {
+    border-color: var(--tertiary);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    outline: none;
+}
+
+/* Search Results Styling */
+#searchResults li {
+    list-style: none;
+    margin-bottom: 15px;
+    padding: 15px;
+    border-radius: 8px;
+    background: var(--entry);
+    transition: transform 0.2s ease;
+}
+
+#searchResults li:hover {
+    transform: translateX(5px);
+    background: var(--tertiary);
+}
+
+#searchResults .post-title {
+    font-family: "JetBrains Mono", monospace;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+/* for images of me and intro */
+/* About Page Professional Styling */
+.about-header {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    margin-bottom: 40px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid var(--tertiary);
+}
+
+.about-image {
+    width: 180px;
+    height: 180px;
+    border-radius: 20px; /* Modern "squircle" shape */
+    object-fit: cover;
+    border: 2px solid var(--tertiary);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.about-intro-text {
+    flex: 1;
+}
+
+.about-intro-text h1 {
+    margin: 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 2.2rem;
+}
+
+.about-subtitle {
+    font-size: 1.1rem;
+    color: var(--secondary);
+    font-family: 'JetBrains Mono', monospace;
+    margin-top: 5px;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 700px) {
+    .about-header {
+        flex-direction: column;
+        text-align: center;
+    }
+    .about-image {
+        width: 150px;
+        height: 150px;
+    }
+}

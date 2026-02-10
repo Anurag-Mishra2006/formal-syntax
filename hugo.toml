@@ -1,0 +1,88 @@
+baseURL = "https://yourusername.github.io/" # Change this when you have your domain
+languageCode = "en-us"
+title = "Formal Syntax"
+theme = "PaperMod"
+
+# High-Performance settings
+enableRobotsTXT = true
+buildDrafts = false
+buildFuture = false
+buildExpired = false
+
+[minify]
+    disableXML = true
+    minifyOutput = true # Keeps the site lightning fast (Linus style)
+
+[params]
+    hideFooter = true
+    env = "production"
+    title = "Formal Syntax"
+    description = "Bridging Web Development and Mathematical Logic. Engineering for impact."
+    keywords = ["WebDev", "Mathematics", "Systems", "Programming", "Logic"]
+    author = "Anurag Mishra"
+
+    # Theme Logic
+    defaultTheme = "auto"
+    disableThemeToggle = false
+    ShowReadingTime = true
+    ShowShareButtons = false # Pro-tip: Technical readers often find these distracting. 
+    ShowPostNavLinks = true
+    ShowBreadCrumbs = true
+    ShowCodeCopyButtons = true
+    ShowToc = true # Essential for long math/technical posts
+    showNumberedHeadings = true # Great for academic/formal feel
+
+    # SEO & Social
+    # Add your GitHub/LinkedIn here so people can find your "Impact"
+    socialIcons = [
+        { name = "github", url = "https://github.com/Anurag-Mishra2006" },
+        { name = "linkedin", url = "https://www.linkedin.com/in/anurag-mishra-256101318/" },
+        { name = "X", url = "https://x.com/Christo54619034" }
+    ]
+
+    [params.editPost]
+        URL = "https://github.com/Anurag-Mishra/formal-syntax/tree/main/content"
+        Text = "Suggest Changes" # Encourages open-source style collaboration
+
+    [params.profileMode]
+        enabled = false # Keep false if you want the "Hi" message below
+
+    [params.homeInfoParams]
+        Title = "Formal Syntax."
+        Content = """This is my personal engineering log—a place to quietly document what I’m learning and building across technology, grounded in mathematical reasoning and fundamental understanding.
+
+Currently learning how the modern web actually works.
+"""
+
+# Search Functionality (PaperMod built-in)
+[outputs]
+    home = ["HTML", "RSS", "JSON"] # JSON is required for the search feature
+
+[[menu.main]]
+    name = "Search" # Allows users to find your math notes instantly
+    url = "/search/"
+    weight = 10
+
+[[menu.main]]
+    name = "Archive"
+    url = "/posts/"
+    weight = 2
+
+[[menu.main]]
+    name = "Notes"
+    url = "/notes/"
+    weight = 3
+[[menu.main]]
+    name = "Home"
+    url = "/"
+    weight = 1
+[[menu.main]]
+    name = "About"
+    url = "/about/"
+    weight = 4
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true # This allows us to use the search scripts and math HTML
+
