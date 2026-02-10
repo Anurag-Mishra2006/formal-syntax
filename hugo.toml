@@ -1,4 +1,4 @@
-baseURL = "https://formal-syntax.pages.dev/posts/" # Change this when you have your domain
+baseURL = "https://formal-syntax.pages.dev/" # Change this when you have your domain
 languageCode = "en-us"
 title = "Formal Syntax"
 theme = "PaperMod"
