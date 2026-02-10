@@ -41,7 +41,7 @@ buildExpired = false
     ]
 
     [params.editPost]
-        URL = "https://github.com/Anurag-Mishra/formal-syntax/tree/main/content"
+        URL = "https://github.com/Anurag-Mishra2006/formal-syntax/tree/main/content"
         Text = "Suggest Changes" # Encourages open-source style collaboration
 
     [params.profileMode]
