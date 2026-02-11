@@ -120,5 +120,5 @@ async function insertUser(username: string, password: string, firstName: string,
 insertUser("admin1", "123456", "xyz", "abc")
 ```
 ---
-👉 [Go to Installation Guide]({{< relref "posts/prisma/relationship.md" >}})
+👉 [Learn about Relationships]({{< relref "posts/prisma/relationship.md" >}})
 --- 
