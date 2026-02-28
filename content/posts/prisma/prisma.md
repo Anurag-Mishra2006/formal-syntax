@@ -1,6 +1,9 @@
 ---
 title: "Introduction to Prisma ORM"
+date : 2026-02-16
 featured: true
+author : "Anurag Mishra"
+tags : ['orms', 'prisma', 'relationship']
 ---
 
 # What are ORMs?

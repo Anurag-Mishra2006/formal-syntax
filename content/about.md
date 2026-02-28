@@ -38,4 +38,4 @@ My interests tend to cluster around a few recurring themes:
 ### Connect & Collaborate
 If you value technical rigor and mathematical clarity, let's connect.
 
-[**GitHub**](https://github.com/Anurag-Mishra2006) | [**LinkedIn**](https://www.linkedin.com/in/anurag-mishra-256101318/) | [**Twitter / X**](https://x.com/Christo54619034)
+[**GitHub**](https://github.com/Anurag-Mishra2006) | [**LinkedIn**](https://www.linkedin.com/in/anurag-mishra-256101318/) | [**Twitter / X**](https://x.com/Christo54619034) | [**Gmail**](mailto:connectanuragm@gmail.com)

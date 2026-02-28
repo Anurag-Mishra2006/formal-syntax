@@ -37,13 +37,11 @@ buildExpired = false
     socialIcons = [
         { name = "github", url = "https://github.com/Anurag-Mishra2006" },
         { name = "linkedin", url = "https://www.linkedin.com/in/anurag-mishra-256101318/" },
-        { name = "X", url = "https://x.com/Christo54619034" }
+        { name = "X", url = "https://x.com/Christo54619034" },
+        {name= "email", url="mailto:connectanuragm@gmail.com"}
     ]
 
-    [params.editPost]
-        URL = "https://github.com/Anurag-Mishra2006/formal-syntax/tree/main/content"
-        Text = "Suggest Changes" # Encourages open-source style collaboration
-
+    
     [params.profileMode]
         enabled = false # Keep false if you want the "Hi" message below
 

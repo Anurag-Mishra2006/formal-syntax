@@ -1,3 +1,84 @@
 {{ if or .Params.math .Site.Params.math }}
     {{ partial "math.html" . }}
 {{ end }}
+
+<!-- Applause Button: Fixed for 2026 -->
+<link rel="stylesheet" href="https://unpkg.com/applause-button@3.4.0/dist/applause-button.css">
+<script src="https://unpkg.com/applause-button@3.4.0/dist/applause-button.js"></script>
+
+<style>
+/* 1. Fix the Metadata Line Alignment */
+.post-meta {
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+}
+
+/* 2. The Wrapper (Creates space for the number on the right) */
+.clap-meta-wrapper {
+    display: inline-flex !important;
+    align-items: center !important;
+    position: relative;
+    padding-right: 40px; /* Adjust this to give more/less space for the number */
+}
+
+/* 3. Make the Button a Perfect Circle */
+applause-button.formal-syntax-clap {
+    width: 28px !important;  
+    height: 28px !important; 
+    display: inline-block !important;
+    border: 1px solid var(--primary) !important;
+    border-radius: 50% !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    position: relative !important;
+    overflow: visible !important; /* Crucial to see the number outside */
+    cursor: pointer;
+}
+
+/* 4. Center the Hand Icon (Fixed size to fit inside 28px) */
+applause-button.formal-syntax-clap::part(icon) {
+    width: 16px !important;
+    height: 16px !important; /* Fixed: 36px was too large */
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    fill: var(--primary) !important;
+}
+
+/* 5. Fix the Numbers: Outside, Horizontal, No Stacking */
+applause-button.formal-syntax-clap::part(count) {
+    position: absolute !important;
+    left: 34px !important; /* Space between circle and number */
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    
+    display: flex !important;
+    flex-direction: row !important; /* Forces horizontal 161 instead of vertical 1-6-1 */
+    width: auto !important;
+    white-space: nowrap !important;
+    
+    font-family: "JetBrains Mono", monospace !important;
+    font-size: 13px !important;
+    color: var(--secondary) !important;
+    text-align: left !important;
+}
+
+/* 6. Kill internal library ovals and bubbles */
+applause-button.formal-syntax-clap::part(style-root) {
+    background: none !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+
+applause-button.formal-syntax-clap::part(shockwave),
+applause-button.formal-syntax-clap::part(sparkles) {
+    display: none !important;
+}
+
+/* Hover State */
+applause-button.formal-syntax-clap:hover {
+    background: rgba(128, 128, 128, 0.1) !important;
+}
+</style>

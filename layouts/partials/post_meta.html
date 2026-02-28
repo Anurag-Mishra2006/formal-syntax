@@ -1,0 +1,43 @@
+{{- $scratch := newScratch -}}
+
+{{- /* 0. Logic for Draft Label */ -}}
+{{- if .Draft -}}
+    {{- $scratch.Add "meta" (slice "DRAFT") -}}
+{{- end -}}
+
+{{- /* 1. Logic for Author */ -}}
+{{- if not .Params.hideAuthor -}}
+    {{- if .Params.author -}}
+        {{- $scratch.Add "meta" (slice .Params.author) -}}
+    {{- else if .Site.Params.author -}}
+        {{- $scratch.Add "meta" (slice .Site.Params.author) -}}
+    {{- end -}}
+{{- end -}}
+
+{{- /* 2. Logic for Date */ -}}
+{{- if not .Date.IsZero -}}
+    {{- $scratch.Add "meta" (slice (.Date.Format (default "January 2, 2006" .Site.Params.DateFormat))) -}}
+{{- end -}}
+
+{{- /* 3. Logic for Reading Time */ -}}
+{{- if (.Param "ShowReadingTime") -}}
+    {{- $scratch.Add "meta" (slice (i18n "read_time" .ReadingTime | default (printf "%d min" .ReadingTime))) -}}
+{{- end -}}
+
+{{- /* 4. Render with dots */ -}}
+{{- with ($scratch.Get "meta") -}}
+    {{- delimit . "&nbsp;·&nbsp;" | safeHTML -}}
+{{- end -}}
+
+{{- /* 5. The Clap Button */ -}}
+{{- if .IsPage -}}
+<span class="clap-meta-wrapper">
+    &nbsp;·&nbsp;
+    <applause-button 
+        multiclap="true" 
+        color="var(--primary)" 
+        class="formal-syntax-clap"
+        url="{{ .Permalink }}"
+        api="https://applause.chabouis.fr" />
+</span>
+{{- end -}}
