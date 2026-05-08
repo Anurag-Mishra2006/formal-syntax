@@ -74,4 +74,76 @@ No! Docker is **not** the only tool — it is just the most **popular and widely
 - **Dockerfile** — a clean, readable way to define your container
 - **Docker Hub** — a massive public registry of ready-to-use images
 - Huge **community and ecosystem**
+## Installation : 
+### Linux (Ubuntu/ Debian) 
+#### Step 1 - Update your system
+```
+sudo apt update && sudo apt upgrade -y
+```
+#### Step 2 - Install required dependencies
+```
+sudo apt install -y ca-certificates curl gnupg lsb-release
+```
+#### Step 3 - Add Docker's official GPG key
+```
+sudo mkdir -p /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+```
+#### Step 4 - Add Docker repository 
+```
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
+  https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
+```
+#### Step 5 - Install Docker Engine 
+```
+sudo apt update
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+```
+#### Step 6 - Start and Enable Docker
+```
+sudo systemctl start docker
+sudo systemctl enable docker
+
+```
+
+#### Step 7 - Run docker without sudo (optional but recommended )
+```
+sudo usermod -aG docker $USER
+newgrp docker
+```
+
+#### Step 8 - Verify Installation
+```
+docker --version
+docker run hello-world
+```
+
+### Window
+1.  Go to 👉 [https://www.docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop)
+2. Download **Docker Desktop for Windows**
+3. Run the installer `.exe`
+4. Enable **WSL 2** when prompted (Windows Subsystem for Linux)
+5. Restart your computer
+6. Open Docker Desktop — wait for it to start
+7. Open terminal and verify:
+```
+docker --version
+docker run hello-world
+```
+
+### MacOs
+1. Go to 👉 [https://www.docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop)
+2. Download for **Mac (Apple Silicon or Intel)** — choose correctly!
+3. Open the `.dmg` file → drag Docker to Applications
+4. Launch Docker from Applications
+5. Wait for Docker to fully start (whale icon in menu bar)
+6. Verify in terminal:
+```
+docker --version
+docker run hello-world
+
+```
