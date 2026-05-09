@@ -147,7 +147,6 @@ docker --version
 docker run hello-world
 
 ```
-
 **Congratulations!** you have installed docker in your system. Before we write our first command, let's get comfortable with two words you'll hear constantly: **image** and **container**.
 #### Docker Image
 A Docker image is a **read-only blueprint/template** used to create containers.
@@ -157,7 +156,7 @@ Feels heavy? Think of it like a recipe - it contains everything needed to run yo
 - Your app's code
 - Dependencies (node_modules)
 - Configuration
->[! You don't  run an image directly — you use it to create a container.]
+>You don't  run an image directly — you use it to create a container.
 
 #### Docker Container 
 A container is an **image brought to life**. When you run an image, Docker creates a container — an isolated, running instance of that blueprint. You can create **multiple containers from the same image**, all running independently.
@@ -392,4 +391,346 @@ This keeps your local PostgreSQL running and maps Docker's 5432 to your machine'
 ```
 postgres://postgres:foobarbaz@localhost:5433/postgres
 #                                        ↑ changed
+```
+
+## Building Your Own Image - The Dockerfile
+So far you've been running images that other people built - postgres, node, hello-world. But in real life, you need to package your own application. That's exactly what the dockerfile does.
+> A Dockerfile is a plan text file containing the step-by-step instructions that tells Docker how to build your image.
+
+Without Dockerfile: 
+ > you have to manually install everything every time.
+
+example:
+1. Install OS packages
+2. Install dependencies 
+3. Copy project file
+4. Set environment variables
+5. Run the app
+That's repetitive and error-prone.
+But with Dockerfile: 
+> You write all those steps once, and Docker automatically builds the environment whenever needed.
+
+Think of it like a shopping list + cooking instructions combined - Docker reads it top to bottom and produces an image at the end
+
+### Let's take an example 
+Before writing the Dockerfile, we need an app. Let's keep  it simple Node.js server: 
+`index.js`
+```
+const express = require("express")
+const app = express()
+app.get("/", (req, res) =>{
+	return res.send("Hello from server!")
+});
+app.listen(3000, ()=>{
+	console.log("Server running on port 3000")
+})
+```
+`package.json`
+```
+{
+  "name": "my-docker-app",
+  "version": "1.0.0",
+  "main": "index.js",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
+```
+Folder structure looks like : 
+```
+my-docker-app/
+├── index.js
+├── package.json
+├── .dockerignore     ← we'll create this too
+└── Dockerfile        ← we'll create this now
+```
+`dockerignore` - Create This First
+Before writing the Dockerfile, create `.dockerignore` file in your project root: 
+```
+node_modules
+.git
+.env
+*.log
+```
+This tells Docker to ignore these files and folders when copying. Without it:
+```
+COPY . .    
+# ↑ copies YOUR local node_modules into the container
+# Your local node_modules may be built for a different OS
+# This overwrites what Docker installs and causes crashes
+```
+Think of it exactly like `.gitignore` - same idea, but different tool.
+
+**The Dockerfile**
+_Create a file named exactly `Dockerfile`(no extension) in your project root_
+
+```dockerfile
+# Pin specific version for stability
+FROM node:19.6-bullseye-slim
+
+# Set environment to production
+ENV NODE_ENV production
+
+# Set working directory inside the container
+WORKDIR /usr/src/app
+
+# Copy dependency files first (better layer caching)
+COPY package*.json ./
+
+# Install only production dependencies
+RUN --mount=type=cache,target=/usr/src/app/.npm \
+  npm set cache /usr/src/app/.npm && \
+  npm ci --only=production
+
+# Switch to non-root user
+USER node
+
+# Copy source code
+COPY --chown=node:node ./src/ .
+
+# Document the port
+EXPOSE 3000
+
+# Start the app
+CMD [ "node", "index.js" ]
+```
+Now let's go through every single line.
+
+####  FROM node:19.6-bullseye-slim
+Every Dockerfile must start with `FROM` - it defines your base image. You're not starting from scratch, you're building on top of an image that already has Node.js installed.
+```
+node:19.6-bullseye-slim
+ │      │       └── slim = stripped down OS, smaller image size
+ │      └── bullseye = Debian version underneath
+ └── 19.6 = exact Node.js version pinned
+```
+>⚠️ Always pin a **specific version** like `19.6` instead of `node:latest`. 
+>Using `latest` means your image can silently change when a new Node version releases — potentially breaking your app in production with zero warning.
+##### What using a base image actually give you
+1. **Saves build time**
+   If Docker had to install the OS and Node from the scratch every build, builds would be much slower.
+2. **Reliability**
+   Official base images are tested and maintained.
+	If you install Node manually every time: 
+		 - You might install wrong version
+		 - Miss dependencies
+		 - Break compatibility
+#### ENV NODE_ENV production
+`ENV` sets an **environment variable** inside the container. It's available at both build time and runtime — any process running inside the container can read it.
+```
+ENV NODE_ENV production
+```
+
+Setting `NODE_ENV=production` matters because:
+- **Express.js** enables performance optimizations and disables detailed error messages
+- **Many npm libraries** have different behaviour in development vs production
+- It tells `npm` we only want production dependencies — no testing libraries, no bundlers, no dev tools
+#### WORKDIR /usr/src/app
+Sets the **working directory inside the container**. Every instruction after this runs from this path. If the folder doesn't exist, Docker creates it automatically.
+```
+# Without WORKDIR — files land all over /
+COPY . .   ← dumps everything in root /
+
+# With WORKDIR — clean and explicit
+WORKDIR /usr/src/app
+COPY . .   ← everything goes neatly to /usr/src/app
+
+```
+Think of it as doing `cd /usr/src/app` — but permanently, for the container.
+
+#### COPY package*.json ./
+Copies `package.json` and `package-lock.json` from your machine into the container's working directory.
+```
+package*.json  →  matches both package.json and package-lock.json
+./             →  current working directory inside container (/usr/src/app)
+```
+>We copy **only** the package files here — not the entire source code. 
+>This is intentional and critical for layer caching. We'll explain exactly why shortly.
+
+#### RUN --mount=type=cache ... npm ci --only=production
+This is the most interesting instruction in the file. Let's break it into two parts:
+`Part 1` — `npm ci` vs `npm install`
+
+```
+npm ci --only=production
+```
+You might be used to `npm install` — but `npm ci` is strictly better for Docker:
+
+| Feature                     | `npm install`                  | `npm ci`                     |
+| --------------------------- | ------------------------------ | ---------------------------- |
+| What it reads               | `package.json`                 | `package-lock.json`          |
+| Versions installed          | Latest matching versions       | Exact locked versions        |
+| Speed                       | Slower                         | Faster                       |
+| `node_modules` behavior     | Updates existing dependencies  | Deletes and reinstalls fresh |
+| Lock file changes           | Can update `package-lock.json` | Never modifies lock file     |
+| Best suited for             | Development                    | Production / Docker builds   |
+| Reliability                 | Less deterministic             | Fully deterministic          |
+| Typical use                 | Adding/updating packages       | Clean reproducible installs  |
+`--only=production` skips all `devDependencies` — testing libraries, bundlers, linters — things that have **no business being in a production image**. This keeps your image smaller and leaner.
+
+`Part 2`— The BuildKit Cache Mount
+```dockerfile
+RUN --mount=type=cache,target=/usr/src/app/.npm \
+  npm set cache /usr/src/app/.npm && \
+  npm ci --only=production
+```
+This is a **BuildKit cache mount** — a powerful optimization. Here's the problem it solves:
+```
+Normal build (no cache mount):
+Every build → npm downloads ALL packages from internet → slow ⏳
+
+With cache mount:
+First build  → downloads packages → stores them in cache
+Second build → finds packages in cache → skips download → fast ⚡
+```
+**The  difference from regular Docker layer caching**
+```
+Docker layer cache   →  caches the entire node_modules layer
+                     →  invalidated whenever package.json changes
+                     →  forces full re-download on any dependency change
+
+BuildKit cache mount →  caches npm's download cache (.npm folder)
+                     →  even if package.json changes, already-downloaded
+                        packages are NOT re-downloaded from internet
+                     →  only truly new packages get fetched
+```
+Think of it this way:
+
+- **Docker layer cache** = saves the cooked meal
+- **BuildKit cache mount** = keeps the ingredients stocked in your fridge
+
+>💡 BuildKit is enabled by default in Docker 23+. If you're on an older version, add `DOCKER_BUILDKIT=1` before your build command:
+
+```bash
+DOCKER_BUILDKIT=1 docker build -t my-docker-app .
+```
+#### User node
+Switches from the default `root` user to a limited user called `node` for everything that follows.
+
+The `node` base image comes with this user pre-created — you don't need to make it yourself. Running as root inside a container is dangerous: if an attacker exploits a vulnerability in your app, they get root access. The `node` user has only the permissions it needs and nothing more.
+>⚠️ Notice that `RUN npm ci` runs **before** `USER node`. That's intentional — installing dependencies needs write access that the limited `node` user doesn't have.
+
+#### COPY --chown=node:node ./src/ .
+Copies your source code into the container **after** installing dependencies.
+```dockerfile
+COPY --chown=node:node ./src/ .
+#    └── ownership     └── from  └── to (WORKDIR = /usr/src/app)
+```
+Two things happening here:
+
+**`--chown=node:node`** — hands ownership of the copied files to the `node` user. Without this, the files would be owned by root and the `node` user couldn't read or execute them.
+
+**Copying source code last** — your source code changes constantly. By copying it last, all the expensive layers above it (dependency installation, etc.) stay cached even when you edit a single line of code.
+
+#### EXPOSE 3000
+Documents that the container's app listens on port 3000. This is **purely informational** — it doesn't actually open any port
+```dockerfile
+EXPOSE 3000       ← tells humans and tooling "this app uses 3000"
+```
+Think of `EXPOSE` as a label on the outside of a box — it tells you what's inside, but you still need to open the box yourself.
+
+#### CMD [ "node", "index.js" ]
+The command that runs **when the container starts**. Unlike `RUN`, this doesn't execute at build time — it's baked in as the default startup instruction.
+Always use the array format (called exec form):
+```
+CMD ["node", "index.js"]   ✅ exec form — signals handled correctly
+CMD node index.js          ⚠️ shell form — app runs inside a shell,
+                              signals like SIGTERM may not reach your app
+```
+This matters for graceful shutdown — when you run `docker stop`, it sends `SIGTERM` to your process. With shell form, the shell receives it but your Node app may not — causing forced kills instead of clean shutdowns.
+#### Layer Caching — Why Order Matters
+Every instruction creates a **layer**. Docker caches each layer — if nothing changed, it reuses the cached version and skips rebuilding. When a layer changes, **every layer after it rebuilds too**.
+```dockerfile
+FROM node:19.6-bullseye-slim     → Layer 1 ← rarely changes
+ENV NODE_ENV production          → Layer 2 ← rarely changes
+WORKDIR /usr/src/app             → Layer 3 ← rarely changes
+COPY package*.json ./            → Layer 4 ← changes when deps change
+RUN npm ci --only=production     → Layer 5 ← changes when Layer 4 changes
+USER node                        → Layer 6 ← rarely changes
+COPY --chown=node:node ./src/ .  → Layer 7 ← changes every code edit
+CMD ["node", "index.js"]         → Layer 8 ← rarely changes
+```
+This ordering is deliberate:
+```
+You edit index.js
+        ↓
+Layer 7 changes (source code)
+        ↓
+Layers 1-6 are untouched → fully cached ✅
+        ↓
+npm ci is SKIPPED — uses cache ✅
+        ↓
+Build completes in seconds ⚡
+```
+If you made the classic mistake of copying everything first : 
+```
+# ❌ Wrong — npm ci reruns on every single code change
+COPY --chown=node:node . .
+RUN npm ci --only=production
+```
+Every time you fix a typo, Docker reinstalls all dependencies from scratch. On a large project that's minutes of waiting, every time.
+
+#### Building Your Image
+```
+docker build -t my-docker-app .
+#              │               └── build context (current folder)
+#              └── tag — the name for your image
+```
+You'll see Docker executing each step:
+```
+[1/8] FROM node:19.6-bullseye-slim
+[2/8] ENV NODE_ENV production
+[3/8] WORKDIR /usr/src/app
+[4/8] COPY package*.json ./
+[5/8] RUN npm ci --only=production
+[6/8] USER node
+[7/8] COPY --chown=node:node ./src/ .
+[8/8] CMD ["node", "index.js"]
+
+Successfully built a1b2c3d4e5f6
+Successfully tagged my-docker-app:latest
+```
+Run it second time - you'll see `CACHED` next to most steps:
+```
+[1/8] FROM node:19.6-bullseye-slim     → CACHED
+[2/8] ENV NODE_ENV production          → CACHED
+[3/8] WORKDIR /usr/src/app             → CACHED
+[4/8] COPY package*.json ./            → CACHED
+[5/8] RUN npm ci --only=production     → CACHED ⚡
+[6/8] USER node                        → CACHED
+[7/8] COPY --chown=node:node ./src/ .  → executing...
+```
+That's the cache working exactly as intended.
+#### Running Your Image
+```bash
+docker run -d --name myapp -p 3000:3000 my-docker-app
+```
+Open  your browser at `http://localhost:3000`:
+```
+Hello from server!
+```
+Your app is now running inside a container, built from an image you created yourself.
+#### Quick Reference 
+
+| Instruction | Runs at            | What it does               |
+| ----------- | ------------------ | -------------------------- |
+| `FROM`      | Build time         | Sets the base image        |
+| `ENV`       | Build + Runtime    | Sets environment variables |
+| `WORKDIR`   | Build time         | Sets working directory     |
+| `COPY`      | Build time         | Copies files into image    |
+| `RUN`       | Build time         | Executes a command         |
+| `USER`      | Build time         | Switches active user       |
+| `EXPOSE`    | Documentation only | Documents the port         |
+| `CMD`       | Start time         | Default startup command    |
+**The Full Picture**
+```
+Your Code + Dockerfile
+        ↓
+  docker build
+        ↓
+    Image created (layered, cached, lean)
+        ↓
+  docker run
+        ↓
+  Container running → http://localhost:3000
 ```
