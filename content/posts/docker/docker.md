@@ -734,3 +734,140 @@ Your Code + Dockerfile
         ↓
   Container running → http://localhost:3000
 ```
+
+### Container Registries - Storing and Sharing Your Images
+Voila! You've build your own image with `docker build`. It lives on your machine right now. But what happens when : 
+- Your teammate needs to run your app?
+- You want to deploy it to a server?
+- Your CI/CD pipeline needs to pull it?
+You cannot just email a Docker image. You need registry.
+#### What is a Container Registry?
+A container registry is a storage catalog where you can push and pull container images from. Images are grouped into repositories - collections of related images with the same name.
+
+Think of it like **GitHub, but for Docker images** instead of code:
+```
+GitHub       →  stores and shares your code
+Registry     →  stores and shares your images
+
+git push     →  sends code to GitHub
+docker push  →  sends image to registry
+
+git pull     →  gets code from GitHub
+docker pull  →  gets image from registry
+```
+#### Registry vs Repository
+
+These two words get confused constantly:
+
+|Term|What it is|Example|
+|---|---|---|
+|**Registry**|The entire platform|Docker Hub|
+|**Repository**|A collection of images inside a registry|`your-username/my-docker-app`|
+|**Image**|A specific version inside a repository|`your-username/my-docker-app:1.0`|
+
+Think of a repository as a folder where you organize your images based on projects. Each repository contains one or more container images.
+```
+Docker Hub (registry)
+└── your-username/my-docker-app (repository)
+    ├── :latest
+    ├── :1.0
+    └── :2.0
+```
+#### Anatomy of an Image URL
+Every image has a full address that tells Docker exactly where to find it:
+```
+docker pull docker.io/your-username/my-docker-app:1.0
+             │          │              │            └── tag (version)
+             │          │              └── repository name
+             │          └── your username/namespace
+             └── registry (docker.io = Docker Hub)
+```
+When you just write `node` or `postgres`, Docker fills in the blanks:
+```
+postgres  →  docker.io/library/postgres:latest
+
+```
+
+#### Types of Registries 
+##### 1. Public Registries
+Open to everyone — anyone can push and pull images.
+
+Docker Hub offers two categories of trusted, Docker-maintained images: Docker Official Images (DOI) — curated images for popular software, following best practices and regularly updated, and Docker Hardened Images (DHI) — minimal, secure, production-ready images with near-zero CVEs, designed to reduce attack surface and simplify compliance. 
+
+Every image you've used so far came from here — `postgres`, `node`, `hello-world` — all Docker Official Images on Docker Hub.
+##### 2. Private Registries
+Restricted access — only authenticated users can push or pull. Used by companies to keep their proprietary application images internal.
+
+There is a growing list of private registries available such as Amazon ECR, GCP Artifact Registry, GitHub Container Registry, and Docker Hub also offers a private repository feature. 
+```
+Public Registry   →  Docker Hub (free, open)
+Private Registries →  AWS ECR, Google Artifact Registry,
+                      GitHub Container Registry, Azure ACR
+```
+#### Hands On - Pushing to Docker Hub
+Let's push the image we built in the  Dockerfile section to Docker Hub
+##### step 1 - Create a Docker Hub account
+
+Go to 👉 [https://hub.docker.com](https://hub.docker.com) and sign up for a free account.
+##### Step 2 — Create a repository
+
+1. Click **Create repository**
+2. Enter a name — e.g. `my-docker-app`
+3. Set visibility to **Public**
+4. Click **Create**
+##### Step 3 - Login from terminal 
+
+```bash
+docker login
+```
+Enter your Docker Hub username and password when prompted. This saves your credentials locally so future pushes don't require re-authentication.
+
+##### Step 4 — Tag your image
+
+Your image needs to be tagged with your Docker Hub username before pushing:
+```bash
+docker tag my-docker-app your-username/my-docker-app:1.0
+#           │             │              │             └── version tag
+#           │             │              └── repository name
+#           │             └── your Docker Hub username
+#           └── local image name
+```
+You can also tag it as `latest`:
+```bash
+docker tag my-docker-app your-username/my-docker-app:latest
+```
+>You can give one image multiple tags. `latest` is convention for the most recent stable version, while version numbers like `1.0` let you pull specific releases.
+
+##### Step 5 — Push the image
+```bash
+docker push your-username/my-docker-app:1.0
+```
+You'll see Docker uploading each layer:
+```
+1.0: pushing to docker.io/your-username/my-docker-app
+3a1b2c3d4e5f: Pushed    ← layer 1
+6b7c8d9e0f1a: Pushed    ← layer 2
+...
+1.0: digest: sha256:abc123... size: 1234
+```
+> 💡 Notice Docker pushes **layers**, not the whole image at once. If you push a second image that shares layers with the first, those shared layers are skipped — already uploaded.
+
+##### Step 6 — Verify on Docker Hub
+Go to `hub.docker.com/r/your-username/my-docker-app` — your image is now publicly available for anyone to pull.
+##### Step 7 — Pull it anywhere
+On any machine with Docker installed:
+```bash
+docker pull your-username/my-docker-app:1.0
+docker run -d -p 3000:3000 your-username/my-docker-app:1.0
+```
+That's the power of a registry — **build once, run anywhere**.
+#### Other Registries Worth Knowing
+
+| Registry                            | Provider  | Best for                      |
+| ----------------------------------- | --------- | ----------------------------- |
+| Docker Hub                          | Docker    | Open source, public images    |
+| GitHub Container Registry (ghcr.io) | GitHub    | Projects already on GitHub    |
+| Amazon ECR                          | AWS       | Apps deployed on AWS          |
+| Google Artifact Registry            | GCP       | Apps deployed on Google Cloud |
+| Azure Container Registry            | Microsoft | Apps deployed on Azure        |
+For personal projects and learning — **Docker Hub is all you need**. In professional settings, we'll likely use whichever matches our cloud provider.
