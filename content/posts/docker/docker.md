@@ -871,3 +871,264 @@ That's the power of a registry — **build once, run anywhere**.
 | Google Artifact Registry            | GCP       | Apps deployed on Google Cloud |
 | Azure Container Registry            | Microsoft | Apps deployed on Azure        |
 For personal projects and learning — **Docker Hub is all you need**. In professional settings, we'll likely use whichever matches our cloud provider.
+
+So, till now your container can now be built, stored, and shared. But there's still one big problem: the moment your container stops, every file it wrote — database records, uploads, logs — vanishes completely. Volumes fix that.
+## Volumes - Persisting Data in Docker
+You've built your image, pushed it to a registry, and can run it anywhere. But there's a fundamental problem we haven't addressed yet.
+**Containers are stateless by default.**
+```
+docker run postgres     ← database starts, you add data
+docker stop postgres    ← container stops
+docker rm postgres      ← container deleted
+
+All your data? Gone. Forever.
+```
+
+Every container starts fresh from its image — like booting from a CD every time. Anything written inside the container's filesystem lives and dies with that container.
+
+This is fine for stateless apps, but completely unacceptable for:
+- Databases (postgres, mysql, mongodb)
+- User uploads
+- Log files
+- Any data that needs to survive restarts
+
+This is exactly what **Volumes** solve.
+### How Docker Storage Works
+Before understanding volumes, let's understand the problem more precisely:
+```
+Image (read-only)
+┌─────────────────────┐
+│   OS layer          │
+│   Node.js           │
+│   Your source code  │  ← frozen, never changes
+└─────────────────────┘
+         +
+Container Layer (read-write, temporary)
+┌─────────────────────┐
+│   log files         │
+│   uploaded files    │  ← lives here, dies when container dies
+│   database records  │
+└─────────────────────┘
+```
+
+Volumes are often a better choice than writing data directly to a container, because a volume doesn't increase the size of the containers using it. Writing into a container's writable layer requires a storage driver to manage the filesystem, which reduces performance compared to using volumes, which write directly to the host filesystem.
+#### Three Types of Storage
+
+Docker gives you three ways to handle storage:
+```
+┌─────────────────────────────────────────────┐
+│              Your Machine                   │
+│                                             │
+│  /var/lib/docker/volumes/   │  Any folder   │
+│  ┌──────────────────────┐   │  ┌─────────┐  │
+│  │   Named Volume       │   │  │  Bind   │  │
+│  │   (Docker managed)   │   │  │  Mount  │  │
+│  └──────────┬───────────┘   │  └────┬────┘  │
+│             │               │       │       │
+└─────────────┼───────────────┼───────┼───────┘
+              │                       │
+         ┌────▼───────────────────────▼────┐
+         │         Container               │
+         │   /var/lib/postgresql/data      │
+         └─────────────────────────────────┘
+```
+
+|Type|Managed by|Best for|
+|---|---|---|
+|**Named Volume**|Docker|Databases, production data|
+|**Bind Mount**|You|Development, live code reload|
+|**tmpfs**|Memory only|Temporary, sensitive data|
+We'll focus on the two you'll use daily — Named Volumes and Bind Mounts.
+#### Named Volumes
+
+When you create a volume, it's stored within a directory on the Docker host. When you mount the volume into a container, this directory is what's mounted into the container. Volumes are completely managed by Docker and isolated from the core functionality of the host machine.
+
+You don't manage where it lives — Docker handles that completely.
+> Creating and using a named volume
+```bash
+# Create a volume
+docker volume create pgdata
+
+# Use it when running a container
+docker run -d \
+  --name mydb \
+  -e POSTGRES_PASSWORD=secret \
+  -v pgdata:/var/lib/postgresql/data \
+  postgres:16-alpine
+#   │       └── path inside the container where postgres stores data
+#   └── your named volume
+```
+Now test that data persists : 
+```bash
+# Stop and delete the container
+docker stop mydb
+docker rm mydb
+
+# Run a brand new container with the SAME volume
+docker run -d \
+  --name mydb-new \
+  -e POSTGRES_PASSWORD=secret \
+  -v pgdata:/var/lib/postgresql/data \
+  postgres:16-alpine
+
+# Your data is still there ✅
+```
+The container is gone but the volume — and all the data inside it — survived.
+
+##### Volume commands 
+```bash
+# List all volumes
+docker volume ls
+
+# Inspect a volume (shows where Docker stores it on disk)
+docker volume inspect pgdata
+
+# Remove a volume (only when no container is using it)
+docker volume rm pgdata
+
+# Remove all unused volumes (careful!)
+docker volume prune
+```
+`docker volume inspect` output:
+```json
+[
+  {
+    "Name": "pgdata",
+    "Mountpoint": "/var/lib/docker/volumes/pgdata/_data",
+    "Driver": "local"
+  }
+]
+```
+
+That `Mountpoint` is where Docker actually stores the data on your machine — but you rarely need to touch it directly. Let Docker manage it.
+#### Bind  Mounts
+
+When you use a bind mount, a file or directory on the host machine is mounted from the host into a container. By contrast, when you use a volume, a new directory is created within Docker's storage directory on the host machine.
+
+With a bind mount, **you decide exactly which folder on your machine** gets shared with the container — and changes on either side are instantly visible to the other.
+```bash
+docker run -d \
+  --name myapp \
+  -v $(pwd)/src:/usr/src/app/src \
+  -p 3000:3000 \
+  my-docker-app
+#   │              └── path inside container
+#   └── absolute path on YOUR machine (current folder/src)
+```
+> The killer use case — Live code reloading
+
+Remember the painful development cycle without bind mounts?
+```
+Edit code
+    ↓
+docker build    ← rebuild entire image (slow ⏳)
+    ↓
+docker run      ← start new container
+    ↓
+Edit code again → repeat...
+```
+
+With a bind mount, your local source folder is directly connected to the container:
+
+```
+Edit code on your machine
+    ↓
+Container sees the change instantly ✅
+    ↓
+Nodemon/hot-reload restarts the server
+    ↓
+No rebuild needed ⚡
+```
+
+Here's how to set it up:
+```bash
+docker run -d \
+  --name myapp-dev \
+  -v $(pwd)/src:/usr/src/app/src \
+  -p 3000:3000 \
+  my-docker-app
+```
+Now edit any file in your local `src/` folder — the container sees it immediately. This is the **development workflow** that makes Docker actually pleasant to use day-to-day.
+##### Read-only bind mounts
+
+Sometimes you want the container to read your files but not modify them — config files for example:
+```bash
+docker run -d \
+  -v $(pwd)/config:/app/config:ro \
+  #                            └── ro = read-only
+  my-docker-app
+```
+
+This prevents the container from accidentally modifying your host files.
+
+##### `--mount` vs `-v` — Two Syntaxes
+
+You'll see both in the wild. They do the same thing, written differently:
+
+```bash
+# -v shorthand (older, concise)
+-v pgdata:/var/lib/postgresql/data         # named volume
+-v $(pwd)/src:/usr/src/app/src             # bind mount
+
+# --mount explicit (newer, verbose but clearer)
+--mount type=volume,source=pgdata,target=/var/lib/postgresql/data
+--mount type=bind,source=$(pwd)/src,target=/usr/src/app/src
+```
+
+`--mount` is preferred. The main difference is that the `--mount` flag is more explicit and supports all the available options. 
+For beginners `-v` is fine — it's shorter and you'll see it everywhere. Just know `--mount` exists and means the same thing written more explicitly.
+
+#### Named Volumes vs Bind Mounts — When to Use Which
+
+|Situation|Use|
+|---|---|
+|Database data (postgres, mysql)|Named Volume|
+|Production data|Named Volume|
+|Sharing data between containers|Named Volume|
+|Live code reloading in development|Bind Mount|
+|Injecting config files|Bind Mount|
+|Need to access files from host directly|Bind Mount|
+If you want your storage or persisting layer to be fully managed by Docker and accessed only through Docker containers and the Docker CLI, choose volumes. If you need full control of the storage and plan on allowing other processes besides Docker to access or modify the storage layer, bind mounts is the right tool for the job.
+
+>💡 **Rule of thumb** — production data always goes in named volumes. Bind mounts are a development tool.
+
+#### Quick Reference 
+```bash
+# Named volume — create
+docker volume create mydata
+
+# Named volume — use with container
+docker run -v mydata:/path/in/container myimage
+
+# Bind mount — use current folder
+docker run -v $(pwd)/src:/app/src myimage
+
+# Bind mount — read only
+docker run -v $(pwd)/config:/app/config:ro myimage
+
+# List volumes
+docker volume ls
+
+# Inspect a volume
+docker volume inspect mydata
+
+# Remove a volume
+docker volume rm mydata
+
+# Remove all unused volumes
+docker volume prune
+```
+
+#### The Full Picture
+```
+Named Volume                    Bind Mount
+(production / databases)        (development / config)
+      │                               │
+      └──────────────┬────────────────┘
+                     │
+               Container runs
+               Data persists ✅
+               Survives restarts ✅
+               Survives container deletion ✅
+```
+
