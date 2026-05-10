@@ -1132,3 +1132,371 @@ Named Volume                    Bind Mount
                Survives container deletion ✅
 ```
 
+---
+
+## Docker Compose - Running Multi-Container Applications
+You now know how to run a single container. But real applications are never just one container. Your project from the very first post had:
+- A **React frontend**
+- A **Node.js API**
+- A **PostgreSQL database**
+Running them all manually looks like this : 
+```bash
+docker run -d \
+  -e POSTGRES_PASSWORD=foobarbaz \
+  -v pgdata:/var/lib/postgresql/data \
+  -p 5432:5432 \
+  postgres:16-alpine
+
+docker run -d \
+  --name api-node \
+  -e DATABASE_URL=postgres://postgres:foobarbaz@localhost:5432/postgres \
+  -p 3000:3000 \
+  api-node
+
+docker run -d \
+  --name client-react \
+  -p 5173:5173 \
+  client-react
+```
+And that's just starting them. You still have to remember the right order, the right flags, the right environment variables — every single time. If you add a teammate, they have to figure all of this out too.
+
+This is exactly the problem Docker Compose solves.
+#### What is Docker Compose?
+
+Compose simplifies the control of your entire application stack, making it easy to manage services, networks, and volumes in a single YAML configuration file. Then, with a single command, you create and start all the services from your configuration file. [Medium](https://medium.com/@nomannayeem/the-one-docker-tutorial-every-beginner-developer-actually-needs-f94a5774da27)
+
+Instead of multiple `docker run` commands, you write one `docker-compose.yml` file and run:
+```bash
+docker compose up
+```
+
+That's it. Every service starts, in the right order, with the right configuration.
+
+##### Your First `docker-compose.yml`
+Create a file named `docker-compose.yml` in your project root:
+```yaml
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_PASSWORD: foobarbaz
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+
+  api-node:
+    build: ./api-node
+    environment:
+      DATABASE_URL: postgres://postgres:foobarbaz@db:5432/postgres
+    ports:
+      - 3000:3000
+    depends_on:
+      - db
+
+  client-react:
+    build: ./client-react
+    ports:
+      - 5173:5173
+    depends_on:
+      - api-node
+
+volumes:
+  pgdata:
+```
+This single file replaces all those `docker run` commands. Let's go through every part.
+##### Structure of a `docker-compose.yml`
+
+A Compose file has three top-level sections:
+
+```yaml
+services:    ← define your containers here
+networks:    ← define custom networks (optional)
+volumes:     ← define named volumes here
+```
+##### Line by Line Breakdown
+##### `services:`
+
+This is where every container in your app lives. Each key under `services` is the **service name** — this becomes the container name and also the **hostname** other services use to reach it.
+
+```yaml
+services:
+  db:          ← service name, also the hostname
+  api-node:    ← service name
+  client-react:
+```
+##### `image:` vs `build:`
+
+```yaml
+# Use a pre-built image from a registry
+db:
+  image: postgres:16-alpine
+
+# Build from a local Dockerfile
+api-node:
+  build: ./api-node   ← path to folder containing Dockerfile
+```
+`image` pulls an existing image. `build` runs `docker build` on your local Dockerfile first, then runs the result.
+
+##### `environment:`
+Sets environment variables inside the container — same as `-e` in `docker run`:
+```yaml
+environment:
+  POSTGRES_PASSWORD: foobarbaz
+  DATABASE_URL: postgres://postgres:foobarbaz@db:5432/postgres
+```
+
+> 💡 Notice the database URL uses `db` as the hostname — not `localhost`. That's the service name from the Compose file. In Docker Compose, **services talk to each other using their service names as hostnames**. More on this in the networking section below.
+
+##### `ports:`
+Maps host ports to container ports — same as `-p` in `docker run`:
+```yaml
+ports:
+  - 5432:5432    # host:container
+  - 3000:3000
+```
+##### `volumes:`
+```yaml
+# Named volume (reference declared at bottom)
+db:
+  volumes:
+    - pgdata:/var/lib/postgresql/data
+
+# Bind mount (no declaration needed)
+api-node:
+  volumes:
+    - ./src:/usr/src/app/src
+```
+
+Named volumes must be **declared at the top level** too:
+```yaml
+volumes:
+  pgdata:    ← tells Compose to create and manage this volume
+```
+
+Running `docker compose up` creates the volume if it doesn't already exist. Otherwise, the existing volume is used and is recreated if it's manually deleted outside of Compose.
+##### `depends_on:`
+
+Controls **startup order** — the service won't start until its dependencies are running:
+```yaml
+api-node:
+  depends_on:
+    - db          ← db starts before api-node
+
+client-react:
+  depends_on:
+    - api-node    ← api-node starts before client-react
+```
+
+So the full startup order becomes:
+
+```
+db → api-node → client-react
+```
+
+> ⚠️ `depends_on` waits for the container to **start** — not for the app inside to be **ready**. Postgres takes a few seconds to initialize after the container starts. Your API might try to connect before Postgres is ready. The proper fix is health checks — covered below.
+
+##### Health Checks — Making `depends_on` Smarter
+
+```yaml
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_PASSWORD: foobarbaz
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s       ← check every 5 seconds
+      timeout: 5s        ← fail if no response in 5s
+      retries: 5         ← try 5 times before marking unhealthy
+
+  api-node:
+    build: ./api-node
+    depends_on:
+      db:
+        condition: service_healthy   ← wait until db passes healthcheck
+```
+
+Now `api-node` won't start until Postgres is actually **ready to accept connections** — not just running.
+#### Networking in Compose
+
+By default, Compose sets up a single network for your app. Each container for a service joins the default network and is both reachable by other containers on that network, and discoverable by its service name. 
+This means your services can talk to each other **by name, automatically** — no configuration needed:
+
+```yaml
+# api-node can reach postgres at:
+DATABASE_URL: postgres://postgres:foobarbaz@db:5432/postgres
+#                                            ↑
+#                              service name, not localhost!
+```
+
+```
+client-react  →  api-node  →  db
+  (browser)      (backend)   (postgres)
+     ↑               ↑
+ uses localhost   uses service name "db"
+ from outside     from inside compose network
+```
+> From your browser (outside Docker), you still use `localhost:5173`. From inside the Docker network, services use each other's names.
+
+#### Docker Compose Commands
+
+##### Starting everything
+```bash
+# Start all services (foreground — shows logs)
+docker compose up
+
+# Start all services (background)
+docker compose up -d
+
+# Build images then start (use when Dockerfile changed)
+docker compose up --build
+```
+##### Stopping everything
+```bash
+# Stop all services (keeps containers and volumes)
+docker compose stop
+
+# Stop AND remove containers and networks
+docker compose down
+
+# Stop AND remove everything including volumes (careful — deletes data!)
+docker compose down -v
+```
+##### Checking status
+```bash
+# See running services
+docker compose ps
+
+# Follow logs from all services
+docker compose logs -f
+
+# Follow logs from one service
+docker compose logs -f api-node
+```
+##### Running commands inside a service
+```bash
+# Open a shell inside a running service
+docker compose exec db psql -U postgres
+
+# Run a one-off command
+docker compose exec api-node node --version
+```
+
+#### Environment Variables with `.env`
+
+Hardcoding passwords in `docker-compose.yml` is bad practice. Use a `.env` file instead:
+**.env**
+
+```
+POSTGRES_PASSWORD=foobarbaz
+DATABASE_URL=postgres://postgres:foobarbaz@db:5432/postgres
+```
+
+**docker-compose.yml**
+```yaml
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+  api-node:
+    build: ./api-node
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+```
+
+Compose automatically reads `.env` from the same folder. Add `.env` to your `.gitignore` — never commit passwords to git.
+#### The Full `docker-compose.yml`
+
+Putting everything together — here's the complete, production-ready Compose file for your project:
+```yaml
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api-node:
+    build: ./api-node
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+    ports:
+      - 3000:3000
+    depends_on:
+      db:
+        condition: service_healthy
+
+  client-react:
+    build: ./client-react
+    restart: unless-stopped
+    ports:
+      - 5173:5173
+    depends_on:
+      - api-node
+
+volumes:
+  pgdata:
+```
+
+One new thing here — `restart: unless-stopped` tells Docker to automatically restart a service if it crashes, unless you explicitly stopped it yourself. Essential for production.
+#### Quick Reference
+```bash
+# Start everything
+docker compose up -d
+
+# Start and rebuild images
+docker compose up -d --build
+
+# Stop everything
+docker compose down
+
+# Stop and delete volumes
+docker compose down -v
+
+# See running services
+docker compose ps
+
+# Follow logs
+docker compose logs -f
+
+# Follow one service's logs
+docker compose logs -f api-node
+
+# Shell into a service
+docker compose exec api-node sh
+
+# Restart one service
+docker compose restart api-node
+```
+#### The Full Picture
+
+```
+docker-compose.yml
+        ↓
+  docker compose up
+        ↓
+┌─────────────────────────────────┐
+│         Compose Network         │
+│  ┌──────┐  ┌────────┐  ┌─────┐  │
+│  │  db  │  │api-node│  │react│  │
+│  └──────┘  └────────┘  └─────┘  │
+│      ↑           ↑         ↑    │
+│   pgdata     source      5173   │
+│  (volume)   (volume)   (port)   │
+└─────────────────────────────────┘
+```
