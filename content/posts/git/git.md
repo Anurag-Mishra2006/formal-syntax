@@ -1,3 +1,11 @@
+---
+title: "Git: A Practical Roadmap"
+date : 2026-06-03
+featured: true
+author : "Anurag Mishra"
+tags : ['git', "opensource", "beginner"]
+---
+
 **Holaa! New post, new topic....** What am I bringing this time? A learning roadmap for `git`.
 
 This is for those who want to contribute to `open source` or `collaborate on projects` — learning the very basics of this essential tool is where it all starts, and that tool is `git`.
