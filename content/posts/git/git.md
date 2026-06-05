@@ -1,12 +1,3 @@
----
-title: "Git: A Practical Roadmap"
-date : 2026-06-03
-featured: true
-author : "Anurag Mishra"
-tags : ['git', "opensource", "beginner"]
----
-
-
 **Holaa! New post, new topic....** What am I bringing this time? A learning roadmap for `git`.
 
 This is for those who want to contribute to `open source` or `collaborate on projects` — learning the very basics of this essential tool is where it all starts, and that tool is `git`.
@@ -466,4 +457,413 @@ Report back: paste the `git log --oneline --graph` output. Do you see a merge co
 - What is the difference between a fast-forward and a three-way merge?
 - When does a merge conflict occur?
 - Why does a merge commit have two parents?
+---
+# Phase 2
+## Lesson 1 : Starting a Repository
+There are exactly two ways a repository comes into existence on your machine. You either **create one from scratch**, or you **copy an existing one**. That is `git init` and `git clone`.
+
+---
+### git init — Creating From Scratch
+
+When you run `git init`, Git creates a `.git/` folder inside your current directory and begins tracking it as a repository. Your existing files are untouched. Nothing is committed yet. Git is simply saying — _"I am now watching this folder."_
+```bash
+git init                  # initialise repo in current folder
+git init my-project       # create new folder AND initialise inside it
+```
+
+Think of it like this — before `git init`, your folder is just a folder. After `git init`, it becomes a folder with a memory. It can now remember every change you tell it to record.
+
+What actually gets created inside `.git/`:
+```text
+.git/
+├── HEAD          ← points to current branch (master by default)
+├── config        ← repo-specific settings
+├── objects/      ← where all commits, files, trees are stored
+└── refs/         ← where branch and tag labels live
+```
+You already know what all of these are from Phase 1.
+
+---
+### git clone — Copying an Existing Repository
+
+This is how you get a copy of any existing project — whether it is someone else's open source project or your own project from GitHub onto a new machine.
+
+```bash
+git clone <url>
+git clone https://github.com/pallets/flask.git
+```
+
+Here is what most beginners miss — clone does **three things at once:**
+![[Pasted image 20260605174314.png]]
+
+---
+### What is "origin"?
+
+When clone creates a remote called `origin`, it is simply storing a nickname for the URL you cloned from. Instead of typing `https://github.com/pallets/flask.git` every time you want to sync, you just say `origin`.
+
+You can verify it exists with:
+```bash
+git remote -v
+```
+
+Output looks like:
+```
+origin  https://github.com/pallets/flask.git (fetch)
+origin  https://github.com/pallets/flask.git (push)
+```
+
+This is Git saying: _"I know a remote called origin, and here is its address for both downloading and uploading."_
+We go deep on remotes in Phase 3. For now just know: clone creates it automatically, init does not.
+
+---
+### init vs clone — When to Use Which
+
+|Situation|Command|
+|---|---|
+|Starting a brand new project from scratch|`git init`|
+|Getting a copy of any existing project|`git clone <url>`|
+|Contributing to open source|Always `git clone` first|
+|Your project exists on GitHub, new machine|`git clone`|
+
+---
+### Common Mistakes
+
+**Running `git init` inside a cloned repo.** Clone already initialised everything. Running init again does nothing useful and can cause confusion.
+
+**Forgetting to `cd` after cloning.** `git clone` creates a new folder. You must enter it before running any other Git commands.
+
+**Running `git init` to get someone else's project.** Init creates an empty repo — it does not download anything from anywhere. You cannot `git init` your way to a copy of Flask.
+
+---
+### Real World Grounding
+
+Every single open source contribution in history started with `git clone`. When Google Summer of Code students begin working on their assigned project, their very first command is cloning the repository. Everything else flows from that one command.
+
+---
+### ✅ Exercises
+
+**Exercise 6.1 — Clone a real project and explore its history.**
+```bash
+git clone https://github.com/pallets/flask.git
+cd flask
+git log --oneline | head -10
+git log --oneline | wc -l
+```
+Report back: paste the 10 most recent commit lines. What is the total commit count?
+
+**Exercise 6.2 — Inspect what clone built for you.**
+```bash
+git remote -v
+git branch -a
+```
+Report back: what does `git remote -v` show? What do you notice about the branch names that start with `remotes/origin/`?
+
+**Exercise 6.3 — Conceptual. Answer in your own words:**
+- What three things does `git clone` do that `git init` does not?
+- You are starting a brand new project called `my-api` from scratch with no existing remote. Which command do you use and why?
+- A friend says _"just git init the Flask repo to get it on your machine."_ What is wrong with that statement?
+---
+## Lesson 2 : git status and git diff
+These are the two most frequently used commands in all of Git. A professional developer runs `git status` instinctively — before committing, after switching branches, after pulling, constantly. It is your dashboard.
+
+---
+### git status — Your Current Situation at a Glance
+
+`git status` answers one question: **what is the state of my three zones right now?**
+
+It tells you:
+- Which branch you are on
+- What files have changed in the working tree
+- What files are staged and ready to commit
+- What files Git has never seen before (untracked)
+
+Let me show you every possible state a file can be in:
+![[Pasted image 20260605174800.png]]
+
+---
+### Reading git status Output
+
+Here is a real `git status` output broken down piece by piece:
+```
+On branch feature/login          ← which branch HEAD is on
+Your branch is up to date with 'origin/feature/login'.  ← remote sync status
+
+Changes to be committed:         ← STAGING AREA (Zone 2)
+  (use "git restore --staged <file>..." to unstage)
+        modified:   auth.py      ← staged, will go into next commit
+
+Changes not staged for commit:   ← WORKING TREE (Zone 1)
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes)
+        modified:   README.md    ← edited but not staged yet
+
+Untracked files:                 ← never seen by Git
+  (use "git add <file>..." to include in what will be committed)
+        tests/test_auth.py       ← new file Git has never tracked
+```
+Read it top to bottom: branch → staged → unstaged → untracked. That is always the order.
+
+---
+### git diff — Seeing Exactly What Changed
+
+While `git status` tells you _which_ files changed, `git diff` tells you _what_ changed inside them — line by line.
+
+There are three versions of diff you need to know:
+```bash
+git diff                    # working tree vs staging area
+                            # "what have I changed but NOT yet staged?"
+
+git diff --staged           # staging area vs last commit
+                            # "what is about to go into my next commit?"
+
+git diff HEAD               # working tree vs last commit
+                            # "what has changed since my last commit, total?"
+```
+
+---
+### Reading a Diff
+```diff
+diff --git a/auth.py b/auth.py
+index 3a4f2b1..9c8d4e2 100644
+--- a/auth.py           ← the old version (before)
++++ b/auth.py           ← the new version (after)
+@@ -12,7 +12,8 @@      ← location: old line 12, new line 12
+ def login(user):
+-    if user.password:           ← RED   = removed line
++    if user.password and user.active:   ← GREEN = added line
++        log_attempt(user)               ← GREEN = added line
+     return authenticate(user)
+```
+The `@@` line tells you the location in the file. Red lines (prefixed `-`) were removed. Green lines (prefixed `+`) were added. Lines with no prefix are context — unchanged lines shown for reference.
+
+---
+### A Powerful Shortcut — git status -s
+
+The `-s` flag gives you a compact one-line-per-file summary:
+```bash
+git status -s
+```
+
+```
+M  auth.py       ← M in green = staged modification
+ M README.md     ← M in red   = unstaged modification
+?? tests/new.py  ← ?? = untracked
+A  config.py     ← A  = newly staged file (added)
+```
+Left column = staging area state. Right column = working tree state. You will use this constantly once it becomes familiar.
+
+---
+### Real World Example
+
+In the **CPython** repository, before every commit contributors run `git diff --staged` to do a final review of exactly what they are about to commit. This is considered mandatory hygiene — you never commit blind. Maintainers can tell from a PR whether a contributor reviewed their own diff before submitting.
+
+---
+### Common Mistakes
+
+**Running `git diff` and seeing nothing after staging.** Once you `git add` a file, `git diff` alone shows nothing for it — because diff compares working tree to staging area, and they now match. Use `git diff --staged` to see staged changes.
+
+**Ignoring `git status` output.** Beginners run commands and skip reading the output. Every line of `git status` output is meaningful. Train yourself to read all of it every time.
+
+---
+### ✅ Exercises
+
+Work inside your `my-first-repo` from Phase 1.
+
+**Exercise 7.1 — Produce all three file states at once**.
+```bash
+# Make a tracked file modified
+echo "new line" >> hello.txt
+
+# Stage it
+git add hello.txt
+
+# Edit it again AFTER staging
+echo "another line" >> hello.txt
+
+# Now run status
+git status
+```
+Report back: paste the full `git status` output. Explain why `hello.txt` appears in TWO sections simultaneously.
+
+**Exercise 7.2 — Use all three diff variants.**
+```bash
+git diff
+git diff --staged
+git diff HEAD
+```
+Report back: what does each one show? What is the difference between them in this specific situation?
+
+**Exercise 7.3 — Read a real diff.** Inside the Flask repo you cloned:
+```bash
+cd flask
+git log --oneline | head -5
+git show 36e4a824
+```
+Paste the diff output and answer: which file was changed, what was removed, and what was added?
+
+**Exercise 7.4 — Conceptual quiz:**
+- You staged `app.py` and then edited it again. You run `git diff`. What does it show — the staged version or the new edit?
+- What is the difference between `git diff --staged` and `git diff HEAD`?
+
+---
+## Lesson 3 : git add  and git commit Done Properly
+You have used both commands already. Now you learn their full power. Most developers use only 20% of what these two commands can do.
+### git add — Full Control Over Staging
+
+The basic form `git add <filename>` stages one file. But you have much more control than that.
+```bash
+git add hello.txt              # stage one specific file
+git add src/auth.py src/db.py  # stage multiple specific files
+git add src/                   # stage everything inside a folder
+git add .                      # stage ALL changes in current directory
+git add *.py                   # stage all Python files
+```
+
+---
+### The Most Powerful Form — git add -p
+
+This is the command that separates beginners from professionals. The `-p` flag (patch mode) lets you stage **parts of a file** — not the whole thing.
+
+Imagine you edited `auth.py` and made two unrelated changes in the same file — you fixed a bug on line 12 and added a new feature on line 47. You want two separate commits: one for the bug fix, one for the feature. With `git add -p` you can stage only the bug fix lines, commit, then stage the feature lines, commit.
+```bash
+git add -p auth.py
+```
+
+Git will show you each changed section (called a **hunk**) and ask what to do:
+
+```
+@@ -12,4 +12,4 @@
+-    if user.password:
++    if user.password and user.active:
+
+Stage this hunk [y,n,q,a,d,s,?]?
+```
+
+Your options:
+- `y` — yes, stage this hunk
+- `n` — no, skip this hunk
+- `s` — split this hunk into smaller pieces
+- `q` — quit, stop asking
+
+This is how professional contributors create clean, reviewable commits even when their working tree is messy.
+
+---
+### git commit — Full Control Over Commits
+
+The basic form you know:
+```bash
+git commit -m "Add login page"
+```
+But there are important variants:
+```bash
+# Open your editor for a multi-line commit message
+git commit
+
+# Stage all TRACKED modified files and commit in one step
+# Does NOT stage untracked files
+git commit -a -m "Fix typo in navbar"
+
+# Amend your last commit — fix the message or add forgotten files
+git commit --amend -m "Correct commit message"
+```
+
+---
+### git commit --amend — Fixing Your Last Commit
+
+This is used constantly. You just committed and realised you forgot to include one file, or your message had a typo.
+```bash
+# Forgot to include config.py in the last commit
+git add config.py
+git commit --amend --no-edit    # adds config.py to last commit, keeps message
+
+# Just fix the message
+git commit --amend -m "Fix null pointer in login handler"
+```
+**Critical warning:** Only amend commits that have not been pushed to a remote yet. Amending rewrites the commit — it creates a new hash. If others have already pulled your commit, amending causes serious problems. This rule becomes essential in Phase 3.
+
+---
+### Writing Commit Messages Properly — The Full Standard
+
+You learned the basics in Lesson 3. Here is the full convention used by Linux, CPython, Git itself, and most serious open source projects:
+```
+Fix null pointer crash in login handler
+
+When a user with no password hash attempts login, the
+authenticate() function dereferenced a null pointer.
+Added a guard clause to return 401 early in this case.
+
+Fixes: #4821
+
+```
+**Line 1** — 50 characters or less. Imperative mood. No period at end. **Line 2** — blank line. Mandatory separator. **Lines 3+** — explain WHY, not what. The diff shows what changed. The message explains the reasoning. **Footer** — reference issues, PRs, or co-authors.
+
+---
+### What Makes a Commit "Atomic"
+
+In open source the word **atomic** means: one commit does exactly one logical thing. Not one file — one _concept_.
+```
+✅ Atomic commits:
+"Fix off-by-one error in pagination"
+"Add password reset email template"
+"Remove deprecated auth middleware"
+
+❌ Non-atomic commits:
+"Fix bug and add feature and update docs"
+"WIP"
+"Various fixes"
+```
+
+Maintainers of projects like Django or the Linux kernel will ask you to split non-atomic commits before they review your PR. Learning this habit now saves you pain later.
+![[Pasted image 20260605175850.png]]
+
+---
+### Real World Example
+
+The **Git project itself** has some of the most disciplined commit history in existence. Every commit does one thing. Every message explains why. Contributors are expected to rewrite their commits before submission until they meet this standard. When you run `git log --oneline` on the Git source code, every single line is a clear, precise, atomic action.
+
+---
+### Common Mistakes
+
+**Using `git add .` blindly.** This stages everything — including files you never intended to commit like log files, credentials, or editor config. Always run `git status` before and after `git add .`.
+
+**Amending pushed commits.** Once a commit is on a remote, amending it rewrites history and causes conflicts for everyone who pulled it. Never amend public commits.
+
+**Writing vague messages under pressure.** "WIP" and "fix" feel fast in the moment. Three months later when a bug is traced to that commit, they tell you nothing.
+
+---
+### ✅ Exercises
+
+**Exercise 8.1 — Practice patch staging.**
+```bash
+cd my-first-repo
+
+# Add two separate changes to the same file
+cat >> hello.txt << 'EOF'
+Bug fix line here
+New feature line here
+EOF
+
+git add -p hello.txt
+```
+Stage only the first hunk using `y` and skip the second using `n`. Then run `git diff` and `git diff --staged` to confirm only one change is staged. Report back: what do you see in each diff?
+
+**Exercise 8.2 — Practice amend.**
+```bash
+echo "forgotten file" > forgotten.txt
+git add hello.txt
+git commit -m "Add bug fix"
+
+# Oops — forgot forgotten.txt
+git add forgotten.txt
+git commit --amend --no-edit
+git show HEAD
+```
+Report back: does `git show HEAD` show both files in the commit?
+
+**Exercise 8.3 — Write a proper commit message.** Make a small change to any file and write a full multi-line commit message by running `git commit` without `-m`. Your message must have a subject line, a blank line, and at least two lines explaining why. Paste the message you wrote here.
+
+**Exercise 8.4 — Conceptual quiz:**
+- What does `git commit -a` do and what does it NOT do?
+- You amended a commit and then pushed it. Your teammate pulls and gets a conflict. Why did this happen?
+- What does atomic mean in the context of commits?
 ---
