@@ -394,12 +394,9 @@ Git finds the **common ancestor** (C2 — the point where the two branches diver
 A conflict is not an error. It's Git saying: _"Two people edited the same spot and I don't know which version to keep — you decide."_
 
 Git marks the conflict in the file like this:
-```
-<<<<<<< HEAD
+```text
 This is the line from master
-=======
 This is the line from feature/login
->>>>>>> feature/login
 ```
 You edit the file to the correct final state, remove the markers, then `git add` and `git commit` to complete the merge. We'll do deep hands-on conflict resolution in Phase 4.
 
