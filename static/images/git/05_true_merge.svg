@@ -1,0 +1,52 @@
+<svg viewBox="0 0 780 480" xmlns="http://www.w3.org/2000/svg">
+  <rect width="780" height="480" fill="#111111"/>
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#aaaaaa" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+
+  <!-- C1 -->
+  <circle cx="100" cy="260" r="32" fill="#1a6b50" stroke="#0f6e56" stroke-width="1"/>
+  <text x="100" y="266" text-anchor="middle" fill="#e0fff8" font-family="-apple-system,sans-serif" font-size="16" font-weight="600">C1</text>
+
+  <!-- C2 -->
+  <circle cx="220" cy="260" r="32" fill="#1a6b50" stroke="#0f6e56" stroke-width="1"/>
+  <text x="220" y="266" text-anchor="middle" fill="#e0fff8" font-family="-apple-system,sans-serif" font-size="16" font-weight="600">C2</text>
+  <text x="220" y="308" text-anchor="middle" fill="#aaaaaa" font-family="-apple-system,sans-serif" font-size="13">common</text>
+  <text x="220" y="324" text-anchor="middle" fill="#aaaaaa" font-family="-apple-system,sans-serif" font-size="13">ancestor</text>
+
+  <line x1="133" y1="260" x2="186" y2="260" stroke="#888" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- C3 (master branch, goes up) -->
+  <line x1="244" y1="244" x2="333" y2="152" stroke="#888" stroke-width="1.5" marker-end="url(#arr)"/>
+  <circle cx="360" cy="130" r="32" fill="#555555" stroke="#777" stroke-width="1"/>
+  <text x="360" y="136" text-anchor="middle" fill="#cccccc" font-family="-apple-system,sans-serif" font-size="16" font-weight="600">C3</text>
+  <text x="360" y="80" text-anchor="middle" fill="#aaaaaa" font-family="-apple-system,sans-serif" font-size="13">master</text>
+  <text x="360" y="96" text-anchor="middle" fill="#aaaaaa" font-family="-apple-system,sans-serif" font-size="13">commits</text>
+
+  <!-- C4 C5 (feature branch, goes down) -->
+  <line x1="244" y1="276" x2="333" y2="348" stroke="#888" stroke-width="1.5" marker-end="url(#arr)"/>
+  <circle cx="360" cy="370" r="32" fill="#4040aa" stroke="#6060cc" stroke-width="1"/>
+  <text x="360" y="376" text-anchor="middle" fill="#e0e0ff" font-family="-apple-system,sans-serif" font-size="16" font-weight="600">C4</text>
+  <line x1="393" y1="370" x2="432" y2="370" stroke="#888" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <circle cx="464" cy="370" r="32" fill="#4040aa" stroke="#6060cc" stroke-width="1"/>
+  <text x="464" y="376" text-anchor="middle" fill="#e0e0ff" font-family="-apple-system,sans-serif" font-size="16" font-weight="600">C5</text>
+  <text x="430" y="424" text-anchor="middle" fill="#aaaaaa" font-family="-apple-system,sans-serif" font-size="13">feature commits</text>
+
+  <!-- M merge node -->
+  <line x1="388" y1="148" x2="558" y2="236" stroke="#888" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="492" y1="354" x2="558" y2="278" stroke="#888" stroke-width="1.5" marker-end="url(#arr)"/>
+  <circle cx="580" cy="260" r="36" fill="#8a5200" stroke="#b07000" stroke-width="1.5"/>
+  <text x="580" y="254" text-anchor="middle" fill="#ffd580" font-family="-apple-system,sans-serif" font-size="16" font-weight="600">M</text>
+  <text x="580" y="272" text-anchor="middle" fill="#e8a030" font-family="-apple-system,sans-serif" font-size="13">merge</text>
+
+  <!-- master label -->
+  <rect x="626" y="244" width="96" height="32" rx="8" fill="#555555" stroke="#777" stroke-width="1"/>
+  <text x="674" y="265" text-anchor="middle" fill="#cccccc" font-family="-apple-system,sans-serif" font-size="14">master</text>
+  <line x1="616" y1="260" x2="624" y2="260" stroke="#888" stroke-width="1.2" marker-end="url(#arr)"/>
+
+  <!-- caption -->
+  <text x="390" y="456" text-anchor="middle" fill="#aaaaaa" font-family="-apple-system,sans-serif" font-size="13">M has two parents: C3 and C5. It combines both lines of work into one snapshot.</text>
+</svg>

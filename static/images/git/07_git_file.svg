@@ -1,0 +1,84 @@
+<svg viewBox="0 0 1100 820" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', system-ui, sans-serif">
+  <!-- Background -->
+  <rect width="1100" height="820" fill="#111111" rx="12"/>
+
+  <!-- TOP ROW -->
+
+  <!-- Untracked box -->
+  <rect x="100" y="70" width="260" height="120" rx="14" fill="#3d3d3d"/>
+  <text x="230" y="118" text-anchor="middle" fill="#e2e8f0" font-size="22" font-weight="700">Untracked</text>
+  <text x="230" y="148" text-anchor="middle" fill="#a0aec0" font-size="16">Git has never seen it</text>
+
+  <!-- Staged box (top) -->
+  <rect x="460" y="70" width="260" height="120" rx="14" fill="#2d5016"/>
+  <text x="590" y="118" text-anchor="middle" fill="#e2e8f0" font-size="22" font-weight="700">Staged</text>
+  <text x="590" y="148" text-anchor="middle" fill="#86efac" font-size="16">Ready to commit</text>
+
+  <!-- Committed box -->
+  <rect x="820" y="70" width="240" height="120" rx="14" fill="#0d4a4a"/>
+  <text x="940" y="118" text-anchor="middle" fill="#e2e8f0" font-size="22" font-weight="700">Committed</text>
+  <text x="940" y="148" text-anchor="middle" fill="#5eead4" font-size="16">Saved in history</text>
+
+  <!-- Arrow: Untracked to Staged (git add) -->
+  <line x1="360" y1="130" x2="458" y2="130" stroke="#888" stroke-width="2"/>
+  <polygon points="458,124 472,130 458,136" fill="#888"/>
+  <text x="410" y="115" text-anchor="middle" fill="#aaa" font-size="15">git add</text>
+
+  <!-- Arrow: Staged to Committed (git commit) -->
+  <line x1="720" y1="130" x2="818" y2="130" stroke="#888" stroke-width="2"/>
+  <polygon points="818,124 832,130 818,136" fill="#888"/>
+  <text x="770" y="115" text-anchor="middle" fill="#aaa" font-size="15">git commit</text>
+
+  <!-- Committed down to Modified -->
+  <line x1="940" y1="190" x2="940" y2="388" stroke="#555" stroke-width="2"/>
+  <polygon points="934,388 940,402 946,388" fill="#555"/>
+  <text x="1000" y="285" text-anchor="middle" fill="#888" font-size="15">you edit</text>
+  <text x="1000" y="308" text-anchor="middle" fill="#888" font-size="15">the file</text>
+
+  <!-- MIDDLE ROW -->
+
+  <!-- Staged box (middle) -->
+  <rect x="460" y="410" width="260" height="120" rx="14" fill="#2d5016"/>
+  <text x="590" y="458" text-anchor="middle" fill="#e2e8f0" font-size="22" font-weight="700">Staged</text>
+  <text x="590" y="488" text-anchor="middle" fill="#86efac" font-size="16">Ready to commit</text>
+
+  <!-- Modified box -->
+  <rect x="820" y="410" width="240" height="120" rx="14" fill="#7a4800"/>
+  <text x="940" y="458" text-anchor="middle" fill="#e2e8f0" font-size="22" font-weight="700">Modified</text>
+  <text x="940" y="488" text-anchor="middle" fill="#fbbf24" font-size="16">Changed, not staged</text>
+
+  <!-- Arrow: Modified to Staged (git add) -->
+  <line x1="820" y1="470" x2="722" y2="470" stroke="#888" stroke-width="2"/>
+  <polygon points="722,464 708,470 722,476" fill="#888"/>
+  <text x="770" y="458" text-anchor="middle" fill="#aaa" font-size="15">git add</text>
+
+  <!-- Arrow: Staged (middle) up via git commit -->
+  <line x1="590" y1="410" x2="590" y2="320" stroke="#555" stroke-width="2" stroke-dasharray="6,4"/>
+  <polygon points="584,320 590,306 596,320" fill="#555"/>
+  <text x="665" y="368" text-anchor="middle" fill="#888" font-size="15">git commit</text>
+
+  <!-- BOTTOM ROW -->
+
+  <!-- git restore staged box -->
+  <rect x="460" y="620" width="280" height="100" rx="14" fill="#6b1a1a"/>
+  <text x="600" y="662" text-anchor="middle" fill="#e2e8f0" font-size="17" font-weight="700">git restore --staged</text>
+  <text x="600" y="690" text-anchor="middle" fill="#fca5a5" font-size="14">unstage → back to modified</text>
+
+  <!-- git restore box -->
+  <rect x="820" y="620" width="240" height="100" rx="14" fill="#6b1a1a"/>
+  <text x="940" y="662" text-anchor="middle" fill="#e2e8f0" font-size="17" font-weight="700">git restore</text>
+  <text x="940" y="690" text-anchor="middle" fill="#fca5a5" font-size="14">discard working tree change</text>
+
+  <!-- Arrow: Staged (middle) down to git restore staged -->
+  <line x1="590" y1="530" x2="590" y2="618" stroke="#555" stroke-width="2"/>
+  <polygon points="584,618 590,632 596,618" fill="#555"/>
+
+  <!-- Arrow: Modified down to git restore -->
+  <line x1="940" y1="530" x2="940" y2="618" stroke="#555" stroke-width="2"/>
+  <polygon points="934,618 940,632 946,618" fill="#555"/>
+
+  <!-- Footer -->
+  <text x="550" y="770" text-anchor="middle" fill="#555" font-size="15">
+    git status shows you exactly which state each file is in at this moment
+  </text>
+</svg>

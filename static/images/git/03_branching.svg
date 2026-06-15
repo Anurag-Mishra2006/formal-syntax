@@ -1,0 +1,83 @@
+<svg viewBox="0 0 860 620" xmlns="http://www.w3.org/2000/svg">
+  <rect width="860" height="620" fill="#111111"/>
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#aaaaaa" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="arr-up" viewBox="0 0 10 10" refX="5" refY="2" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M1 8L5 2L9 8" fill="none" stroke="#aaaaaa" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+
+  <!-- TOP SECTION: Before branching -->
+  <text x="430" y="38" text-anchor="middle" fill="#cccccc" font-family="-apple-system,sans-serif" font-size="16">Before branching — one line of history</text>
+
+  <!-- C1 C2 C3 (teal) -->
+  <circle cx="170" cy="110" r="32" fill="#1a6b50" stroke="#0f6e56" stroke-width="1"/>
+  <text x="170" y="116" text-anchor="middle" fill="#e0fff8" font-family="-apple-system,sans-serif" font-size="16" font-weight="600">C1</text>
+  <line x1="203" y1="110" x2="248" y2="110" stroke="#888" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <circle cx="280" cy="110" r="32" fill="#1a6b50" stroke="#0f6e56" stroke-width="1"/>
+  <text x="280" y="116" text-anchor="middle" fill="#e0fff8" font-family="-apple-system,sans-serif" font-size="16" font-weight="600">C2</text>
+  <line x1="313" y1="110" x2="358" y2="110" stroke="#888" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <circle cx="390" cy="110" r="32" fill="#1a6b50" stroke="#0f6e56" stroke-width="1"/>
+  <text x="390" y="116" text-anchor="middle" fill="#e0fff8" font-family="-apple-system,sans-serif" font-size="16" font-weight="600">C3</text>
+
+  <!-- master label -->
+  <rect x="340" y="155" width="100" height="32" rx="8" fill="#555555" stroke="#777" stroke-width="1"/>
+  <text x="390" y="176" text-anchor="middle" fill="#cccccc" font-family="-apple-system,sans-serif" font-size="14">master</text>
+  <line x1="390" y1="155" x2="390" y2="143" stroke="#888" stroke-width="1.2" marker-end="url(#arr-up)"/>
+
+  <!-- HEAD label -->
+  <rect x="340" y="196" width="100" height="32" rx="8" fill="#7a5200" stroke="#a06800" stroke-width="1"/>
+  <text x="390" y="217" text-anchor="middle" fill="#ffa030" font-family="-apple-system,sans-serif" font-size="14">HEAD</text>
+  <line x1="390" y1="196" x2="390" y2="188" stroke="#888" stroke-width="1.2" marker-end="url(#arr-up)"/>
+
+  <!-- divider -->
+  <line x1="40" y1="260" x2="820" y2="260" stroke="#333" stroke-width="1" stroke-dasharray="6 4"/>
+
+  <!-- BOTTOM SECTION: After branching -->
+  <text x="430" y="292" text-anchor="middle" fill="#cccccc" font-family="-apple-system,sans-serif" font-size="14">After: git switch -c feature/login — a new branch is created from C3</text>
+
+  <!-- C1 C2 C3 teal bottom -->
+  <circle cx="120" cy="440" r="30" fill="#1a6b50" stroke="#0f6e56" stroke-width="1"/>
+  <text x="120" y="446" text-anchor="middle" fill="#e0fff8" font-family="-apple-system,sans-serif" font-size="15" font-weight="600">C1</text>
+  <line x1="151" y1="440" x2="194" y2="440" stroke="#888" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <circle cx="225" cy="440" r="30" fill="#1a6b50" stroke="#0f6e56" stroke-width="1"/>
+  <text x="225" y="446" text-anchor="middle" fill="#e0fff8" font-family="-apple-system,sans-serif" font-size="15" font-weight="600">C2</text>
+  <line x1="256" y1="440" x2="299" y2="440" stroke="#888" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <circle cx="330" cy="440" r="30" fill="#1a6b50" stroke="#0f6e56" stroke-width="1"/>
+  <text x="330" y="446" text-anchor="middle" fill="#e0fff8" font-family="-apple-system,sans-serif" font-size="15" font-weight="600">C3</text>
+
+  <!-- master label bottom -->
+  <rect x="282" y="484" width="96" height="30" rx="8" fill="#555555" stroke="#777" stroke-width="1"/>
+  <text x="330" y="504" text-anchor="middle" fill="#cccccc" font-family="-apple-system,sans-serif" font-size="13">master</text>
+  <line x1="330" y1="484" x2="330" y2="471" stroke="#888" stroke-width="1.2" marker-end="url(#arr-up)"/>
+
+  <!-- branch arrow from C3 up to C4 -->
+  <line x1="355" y1="420" x2="490" y2="348" stroke="#888" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- C4 C5 purple -->
+  <circle cx="520" cy="330" r="30" fill="#4040aa" stroke="#6060cc" stroke-width="1"/>
+  <text x="520" y="336" text-anchor="middle" fill="#e0e0ff" font-family="-apple-system,sans-serif" font-size="15" font-weight="600">C4</text>
+  <line x1="551" y1="330" x2="594" y2="330" stroke="#888" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <circle cx="625" cy="330" r="30" fill="#4040aa" stroke="#6060cc" stroke-width="1"/>
+  <text x="625" y="336" text-anchor="middle" fill="#e0e0ff" font-family="-apple-system,sans-serif" font-size="15" font-weight="600">C5</text>
+
+  <!-- feature/login label -->
+  <rect x="660" y="315" width="130" height="30" rx="8" fill="#3a2d8a" stroke="#5040b0" stroke-width="1"/>
+  <text x="725" y="335" text-anchor="middle" fill="#c0b8f0" font-family="-apple-system,sans-serif" font-size="13">feature/login</text>
+  <line x1="655" y1="330" x2="662" y2="330" stroke="#888" stroke-width="1.2" marker-end="url(#arr)"/>
+
+  <!-- HEAD label bottom -->
+  <rect x="660" y="354" width="130" height="30" rx="8" fill="#7a5200" stroke="#a06800" stroke-width="1"/>
+  <text x="725" y="374" text-anchor="middle" fill="#ffa030" font-family="-apple-system,sans-serif" font-size="13">HEAD</text>
+  <line x1="725" y1="354" x2="725" y2="346" stroke="#888" stroke-width="1.2" marker-end="url(#arr-up)"/>
+
+  <!-- caption -->
+  <text x="430" y="570" text-anchor="middle" fill="#aaaaaa" font-family="-apple-system,sans-serif" font-size="13">master still points to C3. feature/login advances as you commit. Zero file copying.</text>
+</svg>

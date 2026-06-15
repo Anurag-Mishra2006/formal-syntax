@@ -1,0 +1,38 @@
+<svg viewBox="0 0 860 460" xmlns="http://www.w3.org/2000/svg">
+  <rect width="860" height="460" fill="#111111"/>
+
+  <!-- LEFT: Atomic -->
+  <text x="215" y="38" text-anchor="middle" fill="#80ee60" font-family="-apple-system,sans-serif" font-size="17" font-weight="600">✅ Atomic — clean history</text>
+
+  <rect x="40" y="70" width="350" height="54" rx="10" fill="#1a6b50" stroke="#0f6e56" stroke-width="1"/>
+  <text x="100" y="101" text-anchor="middle" fill="#c0f0d0" font-family="-apple-system,sans-serif" font-size="15" font-weight="600">C1</text>
+  <text x="270" y="101" text-anchor="middle" fill="#80ee60" font-family="-apple-system,sans-serif" font-size="14">Fix null pointer in auth</text>
+
+  <rect x="40" y="140" width="350" height="54" rx="10" fill="#1a6b50" stroke="#0f6e56" stroke-width="1"/>
+  <text x="100" y="171" text-anchor="middle" fill="#c0f0d0" font-family="-apple-system,sans-serif" font-size="15" font-weight="600">C2</text>
+  <text x="265" y="171" text-anchor="middle" fill="#80ee60" font-family="-apple-system,sans-serif" font-size="14">Add password reset template</text>
+
+  <rect x="40" y="210" width="350" height="54" rx="10" fill="#1a6b50" stroke="#0f6e56" stroke-width="1"/>
+  <text x="100" y="241" text-anchor="middle" fill="#c0f0d0" font-family="-apple-system,sans-serif" font-size="15" font-weight="600">C3</text>
+  <text x="258" y="241" text-anchor="middle" fill="#80ee60" font-family="-apple-system,sans-serif" font-size="14">Remove deprecated middleware</text>
+
+  <text x="215" y="310" text-anchor="middle" fill="#aaaaaa" font-family="-apple-system,sans-serif" font-size="13">Easy to review, revert,</text>
+  <text x="215" y="328" text-anchor="middle" fill="#aaaaaa" font-family="-apple-system,sans-serif" font-size="13">cherry-pick, or bisect</text>
+
+  <!-- Divider -->
+  <line x1="430" y1="30" x2="430" y2="390" stroke="#333" stroke-width="1" stroke-dasharray="6 4"/>
+
+  <!-- RIGHT: Non-atomic -->
+  <text x="645" y="38" text-anchor="middle" fill="#ee4444" font-family="-apple-system,sans-serif" font-size="17" font-weight="600">❌ Non-atomic — painful history</text>
+
+  <rect x="470" y="70" width="350" height="230" rx="14" fill="#7a2010" stroke="#aa3818" stroke-width="1.5"/>
+  <text x="645" y="108" text-anchor="middle" fill="#f0c0b0" font-family="-apple-system,sans-serif" font-size="15" font-weight="600">C1</text>
+  <text x="645" y="140" text-anchor="middle" fill="#e89070" font-family="-apple-system,sans-serif" font-size="13">fix null pointer in auth +</text>
+  <text x="645" y="162" text-anchor="middle" fill="#e89070" font-family="-apple-system,sans-serif" font-size="13">add password reset +</text>
+  <text x="645" y="184" text-anchor="middle" fill="#e89070" font-family="-apple-system,sans-serif" font-size="13">remove middleware +</text>
+  <text x="645" y="206" text-anchor="middle" fill="#e89070" font-family="-apple-system,sans-serif" font-size="13">update README +</text>
+  <text x="645" y="228" text-anchor="middle" fill="#e89070" font-family="-apple-system,sans-serif" font-size="13">fix another bug</text>
+
+  <text x="645" y="348" text-anchor="middle" fill="#aaaaaa" font-family="-apple-system,sans-serif" font-size="13">Cannot revert one thing.</text>
+  <text x="645" y="366" text-anchor="middle" fill="#aaaaaa" font-family="-apple-system,sans-serif" font-size="13">Reviewer sees everything at once.</text>
+</svg>

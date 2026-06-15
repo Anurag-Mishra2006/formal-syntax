@@ -1,0 +1,42 @@
+<svg viewBox="0 0 860 420" xmlns="http://www.w3.org/2000/svg">
+  <rect width="860" height="420" fill="#111111"/>
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#aaaaaa" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+
+  <!-- GitHub box -->
+  <rect x="40" y="80" width="200" height="220" rx="14" fill="#3a3a3a" stroke="#606060" stroke-width="1.5"/>
+  <text x="140" y="118" text-anchor="middle" fill="#eeeeee" font-family="-apple-system,sans-serif" font-size="17" font-weight="600">GitHub</text>
+  <text x="140" y="148" text-anchor="middle" fill="#aaaaaa" font-family="-apple-system,sans-serif" font-size="14">flask.git</text>
+  <text x="140" y="172" text-anchor="middle" fill="#aaaaaa" font-family="-apple-system,sans-serif" font-size="14">4,000+ commits</text>
+  <text x="140" y="196" text-anchor="middle" fill="#aaaaaa" font-family="-apple-system,sans-serif" font-size="14">all branches</text>
+  <text x="140" y="220" text-anchor="middle" fill="#aaaaaa" font-family="-apple-system,sans-serif" font-size="14">all history</text>
+
+  <!-- git clone arrow -->
+  <line x1="242" y1="190" x2="316" y2="190" stroke="#aaaaaa" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="278" y="178" text-anchor="middle" fill="#cccccc" font-family="-apple-system,sans-serif" font-size="13">git clone</text>
+
+  <!-- Your Machine box -->
+  <rect x="320" y="50" width="490" height="300" rx="16" fill="#0d5a4a" stroke="#1a7a60" stroke-width="1.5"/>
+  <text x="565" y="88" text-anchor="middle" fill="#e0fff8" font-family="-apple-system,sans-serif" font-size="17" font-weight="600">Your Machine</text>
+
+  <!-- item 1: blue -->
+  <rect x="344" y="108" width="442" height="54" rx="10" fill="#1a4a8a" stroke="#2a5aaa" stroke-width="1"/>
+  <text x="440" y="139" text-anchor="middle" fill="#7090d0" font-family="-apple-system,sans-serif" font-size="14">① Full history copied</text>
+  <text x="620" y="139" text-anchor="middle" fill="#c0d8ff" font-family="-apple-system,sans-serif" font-size="13">every commit, every branch, everything</text>
+
+  <!-- item 2: purple -->
+  <rect x="344" y="174" width="442" height="54" rx="10" fill="#3a2d8a" stroke="#5040b0" stroke-width="1"/>
+  <text x="440" y="205" text-anchor="middle" fill="#9080d0" font-family="-apple-system,sans-serif" font-size="14">② Remote "origin" created</text>
+  <text x="620" y="205" text-anchor="middle" fill="#c0b8f0" font-family="-apple-system,sans-serif" font-size="13">points back to the GitHub URL</text>
+
+  <!-- item 3: green -->
+  <rect x="344" y="240" width="442" height="54" rx="10" fill="#2a6a20" stroke="#3a8a28" stroke-width="1"/>
+  <text x="440" y="271" text-anchor="middle" fill="#70b050" font-family="-apple-system,sans-serif" font-size="14">③ Default branch checked out</text>
+  <text x="630" y="271" text-anchor="middle" fill="#a0e080" font-family="-apple-system,sans-serif" font-size="13">working tree has actual files</text>
+
+  <!-- caption -->
+  <text x="430" y="382" text-anchor="middle" fill="#aaaaaa" font-family="-apple-system,sans-serif" font-size="13">git init does none of these three things. It only creates an empty .git/ folder.</text>
+</svg>
