@@ -14,7 +14,7 @@ This post is like a curriculum, covering everything from scratch to advanced, an
 
 ---
 
-# Here is full overview for this curriculum : 
+# Here is full overview for this curriculum: 
 ### Phase 1 - Fundamentals
 -What Git is  -repos   -commit -working tree -staging -branches
 > Goal : Understand Git's mental model before touching a command
@@ -71,8 +71,7 @@ That tool was Git.
 
 ---
 ### The Core Mental Model: A Time Machine for Your Project
-
-![[Pasted image 20260602224055.png]]
+![core_mental_model](/images/git/git_snapshot_timeline_fixed.svg)
 
 **The key insight:** Git doesn't save "what changed" like a diff — it saves a **complete snapshot** of every file at that moment in time. (It's clever about not duplicating identical files, but conceptually: each commit is a full photograph of your project.)
 
@@ -110,7 +109,8 @@ These require no Git installation yet. They're about building your mental model.
 This is the most important conceptual lesson in all of Git. Developers who struggle with Git for years usually have a fuzzy picture of what you're about to learn. Get this right and everything else clicks.
 ### The Three Zones of Git
 At any moment when working with Git, your files exist in one of **three distinct places**. Understanding these three zones is the foundation of everything.
-![[Pasted image 20260602225311.png]]
+
+![three_zones_of_git](/images/git/01_git_three_areas.svg)
 
 ---
 ### Zone 1 — The Working Tree
@@ -191,8 +191,7 @@ Most people think a commit is just "saving your work." It's far more than that.
 ### What a Commit Actually Contains
 
 Every commit is a permanent record that contains **five things:**
- ![[Pasted image 20260602230715.png]]
-
+![structure_of_commit](/images/git/02_commit_anatomy.svg)
 
 ---
 ### The Hash — Git's Fingerprint System
@@ -291,8 +290,7 @@ That's it. It's not a copy of your files. It's not a separate folder. It is a te
 
 When you make a new commit on a branch, the label moves forward to point at the new commit. The old commits don't move — they're permanent and immutable.
 
-![[Pasted image 20260602232330.png]]
-
+![branch_image](/images/git/03_branching.svg)
 ---
 ### HEAD — Where You Are Right Now
 
@@ -386,14 +384,13 @@ Git has two strategies for doing this. Understanding both is critical.
 This happens when the branch you're merging into hasn't moved since the feature branch was created. There's no divergence — the feature branch is simply ahead.
 
 In this case Git doesn't create a new commit. It just **slides the master label forward** to where the feature branch is.
-![[Pasted image 20260602235546.png]]
 
+![fast_forward_merge](/images/git/04_fast_forward_merge.svg)
 ---
 ### Strategy 2 — Three-Way Merge
 
 This happens when both branches have new commits since they diverged. Git cannot simply slide a label — it must combine two different lines of work. So it creates a brand new **merge commit** that has _two parents_.
-![[Pasted image 20260602235610.png]]
-
+![true_merge](/images/git/05_true_merge.svg)
 Git finds the **common ancestor** (C2 — the point where the two branches diverged), compares it against both branch tips, and combines the differences. If the two branches changed _different_ files or _different parts_ of the same file, Git merges automatically. If they changed the _same lines_ of the same file — you get a **merge conflict**, which you must resolve manually.
 
 ---
@@ -499,8 +496,7 @@ git clone https://github.com/pallets/flask.git
 ```
 
 Here is what most beginners miss — clone does **three things at once:**
-![[Pasted image 20260605174314.png]]
-
+![git_clone](/images/git/06_git_clone.svg)
 ---
 ### What is "origin"?
 
@@ -583,8 +579,8 @@ It tells you:
 - What files Git has never seen before (untracked)
 
 Let me show you every possible state a file can be in:
-![[Pasted image 20260605174800.png]]
 
+![git_file_state](/images/git/07_git_file.svg)
 ---
 ### Reading git status Output
 
@@ -819,8 +815,8 @@ In open source the word **atomic** means: one commit does exactly one logical th
 ```
 
 Maintainers of projects like Django or the Linux kernel will ask you to split non-atomic commits before they review your PR. Learning this habit now saves you pain later.
-![[Pasted image 20260605175850.png]]
 
+![atomic_commits](/images/git/08_atomic_commits.svg)
 ---
 ### Real World Example
 
@@ -850,7 +846,7 @@ EOF
 
 git add -p hello.txt
 ```
-Stage only the first hunk using `y` and skip the second using `n`. Then run `git diff` and `git diff --staged` to confirm only one change is staged. Report back: what do you see in each diff?
+Stage only the first hunk using `y` and skip the second using `n`. Then run `git diff` and `git diff --staged` to confirm only one change is staged. What do you see in each diff?
 
 **Exercise 8.2 — Practice amend.**
 ```bash
@@ -863,9 +859,9 @@ git add forgotten.txt
 git commit --amend --no-edit
 git show HEAD
 ```
-Report back: does `git show HEAD` show both files in the commit?
+Does `git show HEAD` show both files in the commit?
 
-**Exercise 8.3 — Write a proper commit message.** Make a small change to any file and write a full multi-line commit message by running `git commit` without `-m`. Your message must have a subject line, a blank line, and at least two lines explaining why. Paste the message you wrote here.
+**Exercise 8.3 — Write a proper commit message.** Make a small change to any file and write a full multi-line commit message by running `git commit` without `-m`. Your message must have a subject line, a blank line, and at least two lines explaining why.
 
 **Exercise 8.4 — Conceptual quiz:**
 - What does `git commit -a` do and what does it NOT do?
