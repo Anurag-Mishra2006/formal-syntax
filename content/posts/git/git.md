@@ -868,3 +868,149 @@ Does `git show HEAD` show both files in the commit?
 - You amended a commit and then pushed it. Your teammate pulls and gets a conflict. Why did this happen?
 - What does atomic mean in the context of commits?
 ---
+## Lesson 4: git log Mastery
+Most developers only ever use `git log` and scroll through it. That is like using a search engine by only looking at the first result. `git log` is one of the most powerful investigation tools in Git — once you know its flags, you can answer almost any question about a project's history in seconds.
+
+---
+### The Problem with Plain git log
+Plain `git log` gives you the full hash, author, date, and message for every commit — but it is verbose and hard to scan. On a project like Flask with 5,500 commits, it is nearly unusable without flags.
+
+You need to shape the output to answer specific questions.
+
+---
+### The Most Useful Flags
+```bash
+# One line per commit — most common daily use
+git log --oneline
+
+# Show a graph of branches and merges
+git log --oneline --graph
+
+# Show graph for ALL branches, not just current
+git log --oneline --graph --all
+
+# Limit to last N commits
+git log --oneline -10
+
+# Show commits by a specific author
+git log --oneline --author="David"
+
+# Show commits that touch a specific file
+git log --oneline -- auth.py
+
+# Show commits whose message contains a keyword
+git log --oneline --grep="fix"
+
+# Show commits between two dates
+git log --oneline --after="2024-01-01" --before="2024-06-01"
+
+# Show what files changed in each commit
+git log --oneline --stat
+
+# Show the full diff of each commit
+git log --oneline -p
+
+# Show commits in a date range on a specific file
+git log --oneline --after="2024-01-01" -- auth.py 
+
+```
+---
+### The Most Powerful Combination
+This single command gives you a full picture of any repository: 
+```bash
+git log --oneline --graph --all --decorate
+```
+
+`--decorate` adds branch and tag lables to the output. Most terminals enable this by default, but it is good to be explicit.
+
+---
+### Reading the Graph Output
+You already saw this in Exercise 5.2. Let us read it precisely.
+
+```
+*   8cdaac7 (HEAD -> master) Merge branch 'feature/contact'
+|\
+| * afcd600 (feature/contact) Add contact page
+* | c2f03d2 Add footer to home page
+|/
+* 0c8564c Add home page
+* 2be7f81 Add about page content
+* a20fae9 Add hello.txt 
+```
+Read it from bottom to top - that is chronological order. The `*` is a commit. The `|` lines are branch paths.
+The `|\` is where a branch split.  The `|/` is where branches rejoined at a merge commit.
+
+---
+### Searching History Like a Detective. 
+This is where `git log` becomes genuinely powerful. In a real open source project you will use these constantly.
+
+```bash
+# Who last touched this file and when?
+git log --oneline -- src/flask/cli.py
+
+# When was this specific function introduced?
+git log --oneline -S "def authenticate"
+
+# What changed between two commits?
+git log --oneline a20fae9..8cdaac7
+
+# What changed in the last week?
+git log --oneline --after="1 week ago"
+
+```
+The `-S` flag is called the `pickaxe`. It searches through the actual content of diffs - not just commit messages - To find when a specific string was added or removed.
+This is how you find exactly which commit introduced a bug or a function.
+
+![git log](/images/git/git_log_flags.svg)
+
+---
+### Real World Example
+When a bug is reported in Flask, a maintainer might run: 
+```bash
+git log --online --after="2024-01-01" --grep="cli" --src/flask/cli.py 
+```
+This instantly narrows 5,500 commits down to only the recent commits that touched `cli.py` and mentioned "cli" in the message. From there, `git show <has>` reveals exactly what changed.
+This is how experienced contributors investigate regressions in minutes rather than hours.
+
+---
+### Common Mistakes
+Never using flags. Plain `git log` on a large repo is nearly useless. Always shape the output.
+Forgetting `--` before filenames. When filtering by filename, the -- separator tells Git that what follows is a path, not a branch name. Without it, Git can get confused if a branch and a file share a name.
+Not knowing about `-S`. The pickaxe flag is one of the most powerful tools in Git and most developers have never heard of it.
+
+### ✅ Exercises
+All of these are inside the Flask repo you cloned.
+
+**Exercise 9.1** — Shape the output.
+```bash
+cd flask
+git log --oneline -10
+git log --oneline --graph --all | head -20
+git log --oneline --stat | head -20
+```
+Check the `--stat` output. What extra information does it show compared to plan `--online`? 
+
+**Exercise 9.2** - Filter by author.
+```bash
+git log --oneline --author="David" | wc -l
+git log --oneline --author="David" | head -5 
+```
+Check : How many commits has David made? Check the five most recent.
+
+**Exercise 9.3** - Filter by file.
+```bash
+git log --oneline -- src/flask/cli.py | head -10
+```
+Check the output. What does this tell you about the history of that specific file?
+
+**Exercise 9.4** - Use the pickaxe.
+```bash
+git log --oneline -S "CertParamType"
+```
+Check the output. What commits appear and what does this tell you?
+
+**Exercise 9.5** - Conceptual quiz: 
+- What is the difference between `--grep` and `-S`? 
+- You want to find exactly when a function called `validate_user` was introduced into the codebase. Which flag do you use and why?
+- What does `git log --oneline main.. feature/login` show?
+

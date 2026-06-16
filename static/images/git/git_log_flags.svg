@@ -1,0 +1,75 @@
+<svg viewBox="0 0 1100 780" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', system-ui, sans-serif">
+  <rect width="1100" height="780" fill="#111111" rx="12"/>
+
+  <!-- Title -->
+  <text x="550" y="45" text-anchor="middle" fill="#555" font-size="20">git log — flags by purpose</text>
+
+  <!-- Column headers -->
+  <rect x="80" y="70" width="280" height="55" rx="10" fill="#0d4a3a"/>
+  <text x="220" y="104" text-anchor="middle" fill="#e2e8f0" font-size="18" font-weight="700">Format output</text>
+
+  <rect x="410" y="70" width="280" height="55" rx="10" fill="#2d2d99"/>
+  <text x="550" y="104" text-anchor="middle" fill="#e2e8f0" font-size="18" font-weight="700">Filter commits</text>
+
+  <rect x="740" y="70" width="280" height="55" rx="10" fill="#7a3800"/>
+  <text x="880" y="104" text-anchor="middle" fill="#e2e8f0" font-size="18" font-weight="700">Search content</text>
+
+  <!-- Row 1 -->
+  <rect x="80" y="145" width="280" height="52" rx="8" fill="#3a3a3a"/>
+  <text x="220" y="177" text-anchor="middle" fill="#d1d5db" font-size="16">--oneline</text>
+
+  <rect x="410" y="145" width="280" height="52" rx="8" fill="#3a3a3a"/>
+  <text x="550" y="177" text-anchor="middle" fill="#d1d5db" font-size="16">-N (last N commits)</text>
+
+  <rect x="740" y="145" width="280" height="52" rx="8" fill="#3a3a3a"/>
+  <text x="880" y="177" text-anchor="middle" fill="#d1d5db" font-size="16">-S "string" (pickaxe)</text>
+
+  <!-- Row 2 -->
+  <rect x="80" y="210" width="280" height="52" rx="8" fill="#3a3a3a"/>
+  <text x="220" y="242" text-anchor="middle" fill="#d1d5db" font-size="16">--graph</text>
+
+  <rect x="410" y="210" width="280" height="52" rx="8" fill="#3a3a3a"/>
+  <text x="550" y="242" text-anchor="middle" fill="#d1d5db" font-size="16">--author="name"</text>
+
+  <rect x="740" y="210" width="280" height="52" rx="8" fill="#3a3a3a"/>
+  <text x="880" y="242" text-anchor="middle" fill="#d1d5db" font-size="16">-G "regex"</text>
+
+  <!-- Row 3 -->
+  <rect x="80" y="275" width="280" height="52" rx="8" fill="#3a3a3a"/>
+  <text x="220" y="307" text-anchor="middle" fill="#d1d5db" font-size="16">--stat</text>
+
+  <rect x="410" y="275" width="280" height="52" rx="8" fill="#3a3a3a"/>
+  <text x="550" y="307" text-anchor="middle" fill="#d1d5db" font-size="16">--grep="keyword"</text>
+
+  <rect x="740" y="275" width="280" height="52" rx="8" fill="#3a3a3a"/>
+  <text x="880" y="307" text-anchor="middle" fill="#d1d5db" font-size="16">hash1..hash2</text>
+
+  <!-- Row 4 -->
+  <rect x="80" y="340" width="280" height="52" rx="8" fill="#3a3a3a"/>
+  <text x="220" y="372" text-anchor="middle" fill="#d1d5db" font-size="16">-p (full diff)</text>
+
+  <rect x="410" y="340" width="280" height="52" rx="8" fill="#3a3a3a"/>
+  <text x="550" y="372" text-anchor="middle" fill="#d1d5db" font-size="16">--after= --before=</text>
+
+  <rect x="740" y="340" width="280" height="52" rx="8" fill="#3a3a3a"/>
+  <text x="880" y="372" text-anchor="middle" fill="#d1d5db" font-size="16">--after="1 week ago"</text>
+
+  <!-- Row 5 -->
+  <rect x="80" y="405" width="280" height="52" rx="8" fill="#3a3a3a"/>
+  <text x="220" y="437" text-anchor="middle" fill="#d1d5db" font-size="16">--all (all branches)</text>
+
+  <rect x="410" y="405" width="280" height="52" rx="8" fill="#3a3a3a"/>
+  <text x="550" y="437" text-anchor="middle" fill="#d1d5db" font-size="16">-- filename</text>
+
+  <rect x="740" y="405" width="280" height="52" rx="8" fill="#3a3a3a"/>
+  <text x="880" y="437" text-anchor="middle" fill="#d1d5db" font-size="16">git show &lt;hash&gt;</text>
+
+  <!-- Power combo box -->
+  <rect x="80" y="490" width="940" height="90" rx="10" fill="#2d5016"/>
+  <text x="550" y="528" text-anchor="middle" fill="#e2e8f0" font-size="18" font-weight="700">Power combo</text>
+  <text x="550" y="558" text-anchor="middle" fill="#86efac" font-size="17">git log --oneline --graph --all --decorate</text>
+
+  <!-- Footer -->
+  <text x="550" y="630" text-anchor="middle" fill="#6b7280" font-size="15">Flags combine freely. Use as many as needed in one command.</text>
+  <text x="550" y="658" text-anchor="middle" fill="#6b7280" font-size="15">Example: git log --oneline --author="David" --after="2024-01-01" -- cli.py</text>
+</svg>
